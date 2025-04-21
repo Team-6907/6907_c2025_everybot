@@ -45,7 +45,7 @@ public class DriveForwardAuto extends Command {
     // drive at 30% speed
     if(timer.get() < drive_seconds)
     {
-        m_drive.driveArcade(0.3, 0.0,false);
+        m_drive.arcadeDrivePID(0.3, 0.0);
     }
   }
 
@@ -53,7 +53,7 @@ public class DriveForwardAuto extends Command {
   @Override
   public void end(boolean isInterrupted) {
     // stop drive motors
-    m_drive.driveArcade(0.0, 0.0, false);
+    m_drive.arcadeDrivePID(0.0, 0.0);
     timer.stop();
   }
 

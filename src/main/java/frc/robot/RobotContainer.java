@@ -88,8 +88,7 @@ public class RobotContainer {
      */
     m_drive.setDefaultCommand(new DriveCommand(m_drive,
         () -> -m_driverController.getLeftY(),
-        () -> -m_driverController.getRightX(),
-        () -> true));
+        () -> -m_driverController.getRightX()));
 
     /**
      * Holding the left bumper (or whatever button you assign) will multiply the speed
@@ -102,8 +101,7 @@ public class RobotContainer {
      */
     m_driverController.leftBumper().whileTrue(new DriveCommand(m_drive, 
         () -> -m_driverController.getLeftY() * DriveConstants.SLOW_MODE_MOVE,  
-        () -> -m_driverController.getRightX() * DriveConstants.SLOW_MODE_TURN,
-        () -> true));
+        () -> -m_driverController.getRightX() * DriveConstants.SLOW_MODE_TURN));
 
     /**
      * Here we declare all of our operator commands, these commands could have been

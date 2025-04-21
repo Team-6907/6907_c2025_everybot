@@ -1,38 +1,30 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+// Copyright (c) 2025 FRC 6907, The G.O.A.T
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 // Command to drive the robot with joystick inputs
 public class DriveCommand extends Command {
-  private final DoubleSupplier m_xSpeed;
-  private final DoubleSupplier m_zRotation;
+  private final DoubleSupplier m_xaxisSpeed;
+  private final DoubleSupplier m_zaxisRotation;
   private final DriveSubsystem m_drive;
-  private final BooleanSupplier m_squared;
 
   /**
-   * Used to drive the robot, uses arcade drive by default, you will need to modify
-   * this command to use tank if desired.
+   * Used to drive the robot, uses arcadeDrivePID by default.
    * 
    * @param driveSubsystem 
-   * @param xSpeed The speed fowards and backwards
-   * @param zRotation The speed to turn the drivetrain at
-   * @param squareInputs Square the inputs from the controller
+   * @param xaxisSpeed The speed fowards and backwards
+   * @param zaxisRotation The speed to turn the drivetrain at
    */
   public DriveCommand(DriveSubsystem driveSubsystem, 
-      DoubleSupplier xSpeed, DoubleSupplier zRotation, BooleanSupplier squareInputs) {
+      DoubleSupplier xaxisSpeed, DoubleSupplier zaxisRotation) {
     // Save parameters to local variables for use later
-    m_xSpeed = xSpeed;
-    m_zRotation = zRotation;
+    m_xaxisSpeed = xaxisSpeed;
+    m_zaxisRotation = zaxisRotation;
     m_drive = driveSubsystem;
-    m_squared = squareInputs;
 
     // Declare subsystems required by this command. This prevents the 
     // subsystem from being called by another command while this command is being used.
@@ -49,7 +41,7 @@ public class DriveCommand extends Command {
   // around with it off, this is driver preference
   @Override
   public void execute() {
-    m_drive.driveArcade(m_xSpeed.getAsDouble(), m_zRotation.getAsDouble(), m_squared.getAsBoolean());
+    m_drive.arcadeDrivePID(m_xaxisSpeed.getAsDouble(), m_zaxisRotation.getAsDouble());
   }
 
   // Runs each time the command ends via isFinished or being interrupted.

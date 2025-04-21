@@ -1,103 +1,83 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+// Copyright (c) 2025 FRC 6907, The G.O.A.T
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix6.hardware.CANcoder;
 
-
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
-  private final SparkMax leftLeader;
-  private final SparkMax leftFollower;
-  private final SparkMax rightLeader;
-  private final SparkMax rightFollower;
+  private final WPI_TalonSRX leftLeader;
+  private final WPI_TalonSRX leftFollower;
+  private final WPI_VictorSPX rightLeader;
+  private final WPI_VictorSPX rightFollower;
 
-  private final DifferentialDrive drive;
+  private final CANcoder leftEncoder;
+  private final CANcoder rightEncoder;
+
+  private final PIDController pidController = new PIDController(DriveConstants.KP, DriveConstants.KI, DriveConstants.KD);
 
   /**
    * The subsystem used to drive the robot.
    */
   public DriveSubsystem() {
-    // create brushed motors for drive
-    leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushed);
-    leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushed);
-    rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushed);
-    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushed);
+    // create motor controllers for drive
+    leftLeader = new WPI_TalonSRX(DriveConstants.LEFT_LEADER_ID);
+    leftFollower = new WPI_TalonSRX(DriveConstants.LEFT_FOLLOWER_ID);
+    rightLeader = new WPI_VictorSPX(DriveConstants.RIGHT_LEADER_ID);
+    rightFollower = new WPI_VictorSPX(DriveConstants.RIGHT_FOLLOWER_ID);
 
-    // set up differential drive class
-    drive = new DifferentialDrive(leftLeader, rightLeader);
+    //create cancoders for pid
+    leftEncoder = new CANcoder(29);
+    rightEncoder = new CANcoder(30);
 
-    // Set CAN timeout. Because this project only sets parameters once on
-    // construction, the timeout can be long without blocking robot operation. Code
-    // which sets or gets parameters during operation may need a shorter timeout.
-    leftLeader.setCANTimeout(250);
-    rightLeader.setCANTimeout(250);
-    leftFollower.setCANTimeout(250);
-    rightFollower.setCANTimeout(250);
-
-    // Create the configuration to apply to motors. Voltage compensation
-    // helps the robot perform more similarly on different
-    // battery voltages (at the cost of a little bit of top speed on a fully charged
-    // battery). The current limit helps prevent tripping
-    // breakers.
-    SparkMaxConfig config = new SparkMaxConfig();
-    config.voltageCompensation(DriveConstants.DRIVE_MOTOR_VOLTAGE_COMP);
-    config.smartCurrentLimit(DriveConstants.DRIVE_MOTOR_CURRENT_LIMIT);
-
-    // Set configuration to follow leader and then apply it to corresponding
-    // follower. Resetting in case a new controller is swapped
-    // in and persisting in case of a controller reset due to breaker trip
-    config.follow(leftLeader);
-    leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    config.follow(rightLeader);
-    rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // Remove following, then apply config to right leader
-    config.disableFollowerMode();
-    rightLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    // Set conifg to inverted and then apply to left leader. Set Left side inverted
-    // so that postive values drive both sides forward
-    config.inverted(true);
-    leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //set up follow relationships
+    leftFollower.follow(leftLeader);
+    rightFollower.follow(rightLeader);
   }
 
   @Override
   public void periodic() {
+    //set up smartdashboard display for encoder values
+    SmartDashboard.putNumber("leftEncoder Value", leftEncoder.getPositionSinceBoot().getValueAsDouble());
+    SmartDashboard.putNumber("rightEncoderValue", rightEncoder.getPositionSinceBoot().getValueAsDouble());
+    SmartDashboard.putNumber("leftEncoder Speed", leftEncoder.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("rightEncoder Speed", rightEncoder.getVelocity().getValueAsDouble());
   }
+
   /**
    *  Use this to control your drive train, with one axis of the controller moving the robot
    *  forwards and backwards with the other axis turning the robot.
    * 
-   *  Additionally if squared is true, it will square your controller inputs,
-   *  for instance pushing forwards on the control stick will yield
-   *  (0.5 * 0.5) = .25 or 25% power to the drivetrain.
-   * 
-   * @param xSpeed the speed forwards to back
-   * @param zRotation the speed to turn at
-   * @param squared do you square the inputs from the controller
+   * @param xaxisSpeed the speed going forward
+   * @param zaxisRotate the speed turning
    */
-  public void driveArcade(double xSpeed, double zRotation, boolean squared) {
-    drive.arcadeDrive(xSpeed, zRotation, squared);
+  public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
+    leftLeader.set(xaxisSpeed - zaxisRotate);
+    rightLeader.set(- xaxisSpeed - zaxisRotate);
   }
 
   /**
-   * Use this to drive the robot, with one stick controlling one 
-   * side of the drivetrain and the other stick controlling the other.
+   *  Use this to control your drive train, with one axis of the controller moving the robot
+   *  forwards and backwards with the other axis turning the robot.
    * 
-   * @param leftSpeed speed to drive the left side of the robot at
-   * @param rightSpeed speed to drive the right side of the robot at
-   * @param squared do you square the inputs from the controller 
+   *  Additionally we use a pidcontroller to make the robot move as your axises input.
+   * 
+   * @param xaxisSpeed the speed going forward
+   * @param zaxisRotate the speed turning
    */
-  public void driveTank(double leftSpeed, double rightSpeed, boolean squared){
-    drive.tankDrive(leftSpeed, rightSpeed, squared);
+
+  public void arcadeDrivePID(double xaxisSpeed, double zaxisRotate) {
+    leftLeader.set(pidController.calculate(
+      leftEncoder.getVelocity().getValueAsDouble()
+      , (xaxisSpeed - zaxisRotate)*DriveConstants.FULL_SPEED));
+    rightLeader.set(pidController.calculate(
+      rightEncoder.getVelocity().getValueAsDouble()
+      , (-xaxisSpeed - zaxisRotate)*DriveConstants.FULL_SPEED));
   }
 }

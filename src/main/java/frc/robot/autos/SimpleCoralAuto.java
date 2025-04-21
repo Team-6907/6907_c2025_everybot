@@ -64,7 +64,7 @@ public class SimpleCoralAuto extends Command {
      */
     if(timer.get() < drive_seconds)
     {
-        m_drive.driveArcade(0.3, 0.0,false);
+        m_drive.arcadeDrivePID(0.3, 0.0);
     }
     /**
      * Once the timer is greater than drive_seconds but less than exjest seconds,
@@ -72,7 +72,7 @@ public class SimpleCoralAuto extends Command {
      */
     else if(timer.get() > drive_seconds && timer.get() < exjest_seconds)
     {
-        m_drive.driveArcade(0.0, 0.0,false);
+        m_drive.arcadeDrivePID(0.0, 0.0);
         m_roller.runRoller(RollerConstants.ROLLER_CORAL_OUT);
     }
   }
@@ -81,7 +81,7 @@ public class SimpleCoralAuto extends Command {
   @Override
   public void end(boolean isInterrupted) {
     // stop drive motors
-    m_drive.driveArcade(0.0, 0.0, false);
+    m_drive.arcadeDrivePID(0.0, 0.0);
     m_roller.runRoller(0);
     timer.stop();
   }

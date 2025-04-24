@@ -1,41 +1,35 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    private final SparkMax climbMotor;
+    private final TalonFX climberMotorTalonFX;
 
-    /**
-     * This subsytem that controls the climber.
-     */
     public ClimberSubsystem () {
-
-    // Set up the climb motor as a brushless motor
-    climbMotor = new SparkMax(ClimberConstants.CLIMBER_MOTOR_ID, MotorType.kBrushless);
+    climberMotorTalonFX = new TalonFX(ClimberConstants.CLIMBER_MOTOR_ID);
 
     // Set can timeout. Because this project only sets parameters once on
     // construction, the timeout can be long without blocking robot operation. Code
     // which sets or gets parameters during operation may need a shorter timeout.
-    climbMotor.setCANTimeout(250);
+    //climbMotor.setCANTimeout(250);
 
-    // Create and apply configuration for climb motor. Voltage compensation helps
-    // the climb behave the same as the battery
-    // voltage dips. The current limit helps prevent breaker trips or burning out
-    // the motor in the event the climb stalls.
-    SparkMaxConfig climbConfig = new SparkMaxConfig();
-    climbConfig.voltageCompensation(ClimberConstants.CLIMBER_MOTOR_VOLTAGE_COMP);
-    climbConfig.smartCurrentLimit(ClimberConstants.CLIMBER_MOTOR_CURRENT_LIMIT);
-    climbConfig.idleMode(IdleMode.kBrake);
-    climbMotor.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    TalonFXConfiguration climberConfig = new TalonFXConfiguration();
+    climberConfig.Voltage.PeakForwardVoltage = 12.0;
+    climberConfig.Voltage.PeakReverseVoltage = -12.0;
+    climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    climberConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    climberMotorTalonFX.getConfigurator().apply(climberConfig, Constants.kLongCANTimeoutSec);
+
     }
 
     @Override
@@ -49,7 +43,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * @param speed motor speed from -1.0 to 1, with 0 stopping it
      */
     public void runClimber(double speed){
-        climbMotor.set(speed);
+        climberMotorTalonFX.set(speed);
     }
 
 }

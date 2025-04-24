@@ -17,6 +17,7 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final double kLongCANTimeoutSec = 0.1;
   public static final class DriveConstants {
     public static final int LEFT_LEADER_ID = 1;
     public static final int LEFT_FOLLOWER_ID = 2;
@@ -33,9 +34,9 @@ public final class Constants {
     public static final int ROLLER_MOTOR_ID = 5;
     public static final int ROLLER_MOTOR_CURRENT_LIMIT = 60;
     public static final double ROLLER_MOTOR_VOLTAGE_COMP = 10;
-    public static final double ROLLER_CORAL_OUT = -.4;
-    public static final double ROLLER_ALGAE_IN = -0.8;
-    public static final double ROLLER_ALGAE_OUT = 0.4;
+    public static final double ROLLER_CORAL_OUT = -0.4;
+    public static final double ROLLER_ALGAE_IN_SPEED = -0.8;
+    public static final double ROLLER_ALGAE_OUT_SPEED = 0.4;
     public static final double ROLLER_CORAL_STACK = -1;
   }
 
@@ -45,8 +46,10 @@ public final class Constants {
     public static final double ARM_MOTOR_VOLTAGE_COMP = 10;
     public static final double ARM_SPEED_DOWN = 0.4;
     public static final double ARM_SPEED_UP = -0.4;
-    public static final double ARM_HOLD_DOWN = 0.1;
-    public static final double ARM_HOLD_UP = -0.15;
+    public static final double ARM_HOLD_DOWN = 0;
+    public static final double ARM_HOLD_UP = -0;
+    public static final double ARM_POSITION_TOP = 0;//need to change, when arm is home
+    public static final double ARM_POSITION_BOTTOM = 0.3;//need to change
   }
 
   public static final class ClimberConstants {

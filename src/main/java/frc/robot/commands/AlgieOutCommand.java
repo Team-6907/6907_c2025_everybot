@@ -31,7 +31,7 @@ public class AlgieOutCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_roller.runRoller(RollerConstants.ROLLER_ALGAE_OUT);
+    m_roller.runRoller(RollerConstants.ROLLER_ALGAE_OUT_SPEED);
   }
 
   // Called once the command ends or is interrupted. This ensures the roller is not running when not intented.

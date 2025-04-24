@@ -1,40 +1,37 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.RollerConstants;
 
 public class RollerSubsystem extends SubsystemBase {
 
-    private final SparkMax rollerMotor;
-    /**
-     * This subsytem that controls the roller.
-     */
+    private final TalonFX rollerMotorTalonFX;
+
     public RollerSubsystem () {
 
-    // Set up the roller motor as a brushed motor
-    rollerMotor = new SparkMax(RollerConstants.ROLLER_MOTOR_ID, MotorType.kBrushed);
+    rollerMotorTalonFX = new TalonFX(RollerConstants.ROLLER_MOTOR_ID);
 
     // Set can timeout. Because this project only sets parameters once on
     // construction, the timeout can be long without blocking robot operation. Code
     // which sets or gets parameters during operation may need a shorter timeout.
-    rollerMotor.setCANTimeout(250);
+    //rollerMotor.setCANTimeout(250);
 
-    // Create and apply configuration for roller motor. Voltage compensation helps
-    // the roller behave the same as the battery
-    // voltage dips. The current limit helps prevent breaker trips or burning out
-    // the motor in the event the roller stalls.
-    SparkMaxConfig rollerConfig = new SparkMaxConfig();
-    rollerConfig.voltageCompensation(RollerConstants.ROLLER_MOTOR_VOLTAGE_COMP);
-    rollerConfig.smartCurrentLimit(RollerConstants.ROLLER_MOTOR_CURRENT_LIMIT);
-    rollerConfig.idleMode(IdleMode.kBrake);
-    rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
+    rollerConfig.Voltage.PeakForwardVoltage = 12.0;
+    rollerConfig.Voltage.PeakReverseVoltage = -12.0;
+    rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rollerConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    rollerMotorTalonFX.getConfigurator().apply(rollerConfig, Constants.kLongCANTimeoutSec);
+
     }
 
     @Override
@@ -48,7 +45,7 @@ public class RollerSubsystem extends SubsystemBase {
      * @param speedmotor speed from -1.0 to 1, with 0 stopping it
      */
     public void runRoller(double speed){
-        rollerMotor.set(speed);
+        rollerMotorTalonFX.set(speed);
     }
 
 }

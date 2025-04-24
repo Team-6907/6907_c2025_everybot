@@ -1,10 +1,8 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.3.1"
+    id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10"
-    id "com.diffplug.spotless" version "6.25.0"
-    id "io.freefair.lombok" version "8.12.1"
-    id "com.google.protobuf" version "0.9.4"
+    id "com.diffplug.spotless" version "6.12.0"
 }
 
 java {
@@ -48,7 +46,9 @@ deploy {
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
-                    deleteOldFiles = false // Change to true to delete files on roboRIO that no longer exist in deploy directory of this project
+                    // Change to true to delete files on roboRIO that no
+                    // longer exist in deploy directory on roboRIO
+                    deleteOldFiles = false
                 }
             }
         }
@@ -70,7 +70,7 @@ task(replayWatch, type: JavaExec) {
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-// Also defines JUnit 5.
+// Also defines JUnit 4.
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
@@ -93,8 +93,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'org.jgrapht:jgrapht-core:1.5.1'
-
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
@@ -105,18 +103,19 @@ test {
 }
 
 // Simulation configuration (e.g. environment variables).
-wpi.sim.addGui().defaultEnabled = true
+//
+// The sim GUI is *disabled* by default to support running
+// AdvantageKit log replay from the command line. Set the
+// value to "true" to enable the sim GUI by default (this
+// is the standard WPILib behavior).
+wpi.sim.addGui().defaultEnabled = false
 wpi.sim.addDriverstation()
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -139,7 +138,7 @@ gversion {
     classPackage = "frc.robot"
     className    = "BuildConstants"
     dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-    timeZone     = "Asia/Shanghai"
+    timeZone     = "America/New_York"
     indent       = "  "
 }
 
@@ -181,23 +180,14 @@ project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
         target fileTree(".") {
-            include "src/**/*.java"
-            // 排除生成的 BuildConstants 文件（以免覆盖自动生成的版权信息）
-            exclude "**/build/**", "**/build-*/**", "src/main/java/frc/robot/BuildConstants.java"
-            exclude 'src/main/deploy/pathplanner/navgrid.json'
+            include "**/*.java"
+            exclude "**/build/**", "**/build-*/**"
         }
-        // 允许在代码中使用特殊注释关闭/开启格式化
         toggleOffOn()
-        // 使用 Google Java Format 进行格式化
         googleJavaFormat()
-        // 自动删除未使用的导入
         removeUnusedImports()
-        // 去除每行尾部的空白字符
         trimTrailingWhitespace()
-        // 文件末尾确保有换行
         endWithNewline()
-        // 添加 License Header（可根据需要调整文本）
-        licenseHeader("// Copyright (c) 2025 FRC 6907, The G.O.A.T\n")
     }
     groovyGradle {
         target fileTree(".") {
@@ -220,7 +210,6 @@ spotless {
         target fileTree(".") {
             include "**/*.md", "**/.gitignore"
             exclude "**/build/**", "**/build-*/**"
-            exclude 'src/main/deploy/pathplanner/navgrid.json'
         }
         trimTrailingWhitespace()
         indentWithSpaces(2)

@@ -1,12 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+// Copyright (c) 2025 FRC 6907, The G.O.A.T
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /** An ArmDown command that uses an Arm subsystem. */
 public class ArmDownCommand extends Command {
@@ -14,9 +11,9 @@ public class ArmDownCommand extends Command {
 
   /**
    * Powers the arm down, when finished passively holds the arm down.
-   * 
-   * We recommend that you use this to only move the arm into the paracord
-   * and let the passive portion hold the arm down.
+   *
+   * <p>We recommend that you use this to only move the arm into the paracord and let the passive
+   * portion hold the arm down.
    *
    * @param arm The subsystem used by this command.
    */

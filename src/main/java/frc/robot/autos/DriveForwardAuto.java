@@ -1,3 +1,4 @@
+// Copyright (c) 2025 FRC 6907, The G.O.A.T
 package frc.robot.autos;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -5,47 +6,44 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class DriveForwardAuto extends Command {
-    private DriveSubsystem m_drive;
-    private Timer timer;
-    private double drive_seconds = 3.25;
+  private DriveSubsystem m_drive;
+  private Timer timer;
+  private double drive_seconds = 3.25;
 
-      /**
-     * This auto will have the robot drive forwards
-     * 
-     * There are many ways to write autos, this form will work well for most simple
-     * auto routines. For more advanced routines you may want a different structure and 
-     * to use more sensors.
-     * 
-     * Here we use a single timer gate, after the robot has finished driving for the first 3.25 
-     * seconds it will stop moving. You may wish for the robot to move more or less depending on
-     * your use case.
-     * 
-     * 
-     * @param drive
-     */
-    public DriveForwardAuto(DriveSubsystem drive)
-    {
-        m_drive = drive;
-        
-        timer = new Timer();
+  /**
+   * This auto will have the robot drive forwards
+   *
+   * <p>There are many ways to write autos, this form will work well for most simple auto routines.
+   * For more advanced routines you may want a different structure and to use more sensors.
+   *
+   * <p>Here we use a single timer gate, after the robot has finished driving for the first 3.25
+   * seconds it will stop moving. You may wish for the robot to move more or less depending on your
+   * use case.
+   *
+   * @param drive
+   */
+  public DriveForwardAuto(DriveSubsystem drive) {
+    m_drive = drive;
 
-        addRequirements(m_drive);
-    }
+    timer = new Timer();
 
-    @Override
+    addRequirements(m_drive);
+  }
+
+  @Override
   public void initialize() {
     // start timer, uses restart to clear the timer as well in case this command has
     // already been run before
     timer.restart();
   }
 
-  // Runs every cycle while the command is scheduled (~50 times per second), here we will just drive forwards
+  // Runs every cycle while the command is scheduled (~50 times per second), here we will just drive
+  // forwards
   @Override
   public void execute() {
     // drive at 30% speed
-    if(timer.get() < drive_seconds)
-    {
-        m_drive.arcadeDrivePID(0.3, 0.0);
+    if (timer.get() < drive_seconds) {
+      m_drive.arcadeDrivePID(0.3, 0.0);
     }
   }
 

@@ -3,7 +3,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
-
 import java.util.function.DoubleSupplier;
 
 // Command to drive the robot with joystick inputs
@@ -14,27 +13,26 @@ public class DriveCommand extends Command {
 
   /**
    * Used to drive the robot, uses arcadeDrivePID by default.
-   * 
-   * @param driveSubsystem 
+   *
+   * @param driveSubsystem
    * @param xaxisSpeed The speed fowards and backwards
    * @param zaxisRotation The speed to turn the drivetrain at
    */
-  public DriveCommand(DriveSubsystem driveSubsystem, 
-      DoubleSupplier xaxisSpeed, DoubleSupplier zaxisRotation) {
+  public DriveCommand(
+      DriveSubsystem driveSubsystem, DoubleSupplier xaxisSpeed, DoubleSupplier zaxisRotation) {
     // Save parameters to local variables for use later
     m_xaxisSpeed = xaxisSpeed;
     m_zaxisRotation = zaxisRotation;
     m_drive = driveSubsystem;
 
-    // Declare subsystems required by this command. This prevents the 
+    // Declare subsystems required by this command. This prevents the
     // subsystem from being called by another command while this command is being used.
     addRequirements(m_drive);
   }
 
   // Runs each time the command is scheduled.
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   // Runs every cycle while the command is scheduled (~50 times per second)
   // In teleop we square the drive command to help improve hanlding, play
@@ -46,8 +44,7 @@ public class DriveCommand extends Command {
 
   // Runs each time the command ends via isFinished or being interrupted.
   @Override
-  public void end(boolean isInterrupted) {
-  }
+  public void end(boolean isInterrupted) {}
 
   // Runs every cycle while the command is scheduled to check if the command is
   // finished

@@ -8,8 +8,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.autos.DriveForwardAuto;
 import frc.robot.autos.SimpleCoralAuto;
-import frc.robot.commands.AlgieInCommand;
-import frc.robot.commands.AlgieOutCommand;
+import frc.robot.commands.AlgaeInCommand;
+import frc.robot.commands.AlgaeOutCommand;
 import frc.robot.commands.ArmDownCommand;
 import frc.robot.commands.ArmUpCommand;
 import frc.robot.commands.ClimberDownCommand;
@@ -109,10 +109,10 @@ public class RobotContainer {
      * Here we declare all of our operator commands, these commands could have been
      * written in a more compact manner but are left verbose so the intent is clear.
      */
-    m_operatorController.rightBumper().whileTrue(new AlgieInCommand(m_roller));
+    m_operatorController.rightBumper().whileTrue(new AlgaeInCommand(m_roller));
     
     // Here we use a trigger as a button when it is pushed past a certain threshold
-    m_operatorController.rightTrigger(.2).whileTrue(new AlgieOutCommand(m_roller));
+    m_operatorController.rightTrigger(.2).whileTrue(new AlgaeOutCommand(m_roller));
 
     /**
      * The arm will be passively held up or down after this is used,

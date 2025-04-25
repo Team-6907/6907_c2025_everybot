@@ -32,7 +32,7 @@ public class AlgaeGroundCommand extends Command {
   public void execute() {
     new SequentialCommandGroup(
       new ArmMovePosCommand(m_arm, Armposition.BOTTOM),
-      new AlgieInCommand(m_roller)
+      new AlgaeInCommand(m_roller)
     );
   }
 

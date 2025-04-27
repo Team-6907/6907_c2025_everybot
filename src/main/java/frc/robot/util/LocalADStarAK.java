@@ -1,3 +1,4 @@
+// Copyright (c) 2025 FRC 6907, The G.O.A.T
 package frc.robot.util;
 
 import com.pathplanner.lib.path.GoalEndState;

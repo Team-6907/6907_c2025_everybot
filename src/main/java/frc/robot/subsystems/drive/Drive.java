@@ -202,4 +202,17 @@ public class Drive extends SubsystemBase {
   public double getCharacterizationVelocity() {
     return (inputs.leftVelocityRadPerSec + inputs.rightVelocityRadPerSec) / 2.0;
   }
+
+  public ChassisSpeeds getDriveSpeedFieldRelative() {
+    DifferentialDriveWheelSpeeds wheelSpeeds =
+        new DifferentialDriveWheelSpeeds(
+            getLeftVelocityMetersPerSec(), getRightVelocityMetersPerSec());
+    ChassisSpeeds robotRelativeSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
+        robotRelativeSpeeds.vxMetersPerSecond,
+        robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.omegaRadiansPerSecond,
+        getRotation());
+  }
 }

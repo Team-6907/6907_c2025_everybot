@@ -27,6 +27,8 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
+
 public class DriveToPose extends Command {
   private static final LoggedTunableNumber drivekP = new LoggedTunableNumber("DriveToPose/DrivekP");
   private static final LoggedTunableNumber drivekD = new LoggedTunableNumber("DriveToPose/DrivekD");
@@ -104,13 +106,13 @@ public class DriveToPose extends Command {
     atGoalSupplier = goalSupplier;
   }
 
-  private enum DriveState {
+  /*private enum DriveState {
     ROTATE_TO_TARGET,
     DRIVE_TO_TARGET,
     ROTATE_TO_FINAL
   }
 
-  private DriveState currentState = DriveState.ROTATE_TO_TARGET;
+  private DriveState currentState = DriveState.ROTATE_TO_TARGET;*/
 
   @Override
   public void initialize() {
@@ -220,6 +222,8 @@ public class DriveToPose extends Command {
             .getTranslation();
 
     atGoalFlag = atGoalSupplier.getAsBoolean();
+
+
     if (atGoalFlag) {
       Translation2d manualDriveVelocity = linearFF.get();
       double manualThetaVelocity = thetaVelocity;
@@ -229,6 +233,33 @@ public class DriveToPose extends Command {
     } else {
 
       Rotation2d headingToTarget =
+          currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle();
+
+      thetaVelocity =
+              thetaController.calculate(
+                  currentPose.getRotation().getRadians(), headingToTarget.getRadians());
+
+      Translation2d robotRelativeVelocity =
+              driveVelocity.rotateBy(headingToTarget.unaryMinus());
+      
+      drive.runClosedLoop(new ChassisSpeeds(
+                robotRelativeVelocity.getX(),  
+                0.0,                           
+                thetaVelocity));
+        
+
+      if (currentDistance < driveController.getPositionTolerance()) {
+            thetaVelocity =
+                thetaController.calculate(
+                    currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+  
+            drive.runClosedLoop(new ChassisSpeeds(
+                                0.0, 
+                                0.0, 
+                                thetaVelocity));
+          }
+
+      /*Rotation2d headingToTarget =
           currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle();
 
       switch (currentState) {
@@ -265,7 +296,7 @@ public class DriveToPose extends Command {
                   currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
 
           drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity));
-          break;
+          break;*/
       }
 
       // Log data
@@ -280,7 +311,7 @@ public class DriveToPose extends Command {
               Rotation2d.fromRadians(thetaController.getSetpoint().position)));
       Logger.recordOutput("DriveToPose/Goal", targetPose);
     }
-  }
+  
 
   @Override
   public void end(boolean interrupted) {

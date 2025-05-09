@@ -13,10 +13,32 @@
 
 package frc.robot;
 
+<<<<<<< HEAD
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+=======
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.autos.DriveForwardAuto;
+import frc.robot.autos.SimpleCoralAuto;
+import frc.robot.commands.AlgaeInCommand;
+import frc.robot.commands.AlgaeOutCommand;
+import frc.robot.commands.ArmDownCommand;
+import frc.robot.commands.ArmUpCommand;
+import frc.robot.commands.ClimberDownCommand;
+import frc.robot.commands.ClimberUpCommand;
+import frc.robot.commands.CoralOutCommand;
+import frc.robot.commands.CoralStackCommand;
+import frc.robot.commands.DriveCommand;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.RollerSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+>>>>>>> e085cfc4a19d5a1115f0c72f0f546af311c22b19
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -134,12 +156,50 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default drive command, normal arcade drive
 
+<<<<<<< HEAD
     arm.resetPosion();
     
     drive.setDefaultCommand(DriveCommands.arcadeDrive(drive,
         () -> -driverController.getLeftY(),
         () -> -driverController.getRightX())
     );
+=======
+    /** 
+     * Set the default command for the drive subsystem to an instance of the
+     * DriveCommand with the values provided by the joystick axes on the driver
+     * controller. The Y axis of the controller is inverted so that pushing the
+     * stick away from you (a negative value) drives the robot forwards (a positive
+     * value). Similarly for the X axis where we need to flip the value so the
+     * joystick matches the WPILib convention of counter-clockwise positive
+     */
+    m_drive.setDefaultCommand(new DriveCommand(m_drive,
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getRightX(),
+        () -> true));
+
+    /**
+     * Holding the left bumper (or whatever button you assign) will multiply the speed
+     * by a decimal to limit the max speed of the robot -> 
+     * 1 (100%) from the controller * .9 = 90% of the max speed when held (we also square it)
+     * 
+     * Slow mode is very valuable for line ups and the deep climb 
+     * 
+     * When switching to single driver mode switch to the B button
+     */
+    m_driverController.leftBumper().whileTrue(new DriveCommand(m_drive, 
+        () -> -m_driverController.getLeftY() * DriveConstants.SLOW_MODE_MOVE,  
+        () -> -m_driverController.getRightX() * DriveConstants.SLOW_MODE_TURN,
+        () -> true));
+
+    /**
+     * Here we declare all of our operator commands, these commands could have been
+     * written in a more compact manner but are left verbose so the intent is clear.
+     */
+    m_operatorController.rightBumper().whileTrue(new AlgaeInCommand(m_roller));
+    
+    // Here we use a trigger as a button when it is pushed past a certain threshold
+    m_operatorController.rightTrigger(.2).whileTrue(new AlgaeOutCommand(m_roller));
+>>>>>>> e085cfc4a19d5a1115f0c72f0f546af311c22b19
 
     driverController.leftBumper().whileTrue(DriveCommands.arcadeDrive(drive, 
         () -> -driverController.getLeftY() * DriveConstants.SLOW_MODE_MOVE,  

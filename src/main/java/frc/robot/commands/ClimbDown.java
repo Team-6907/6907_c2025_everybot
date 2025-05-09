@@ -5,15 +5,16 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.roller.Roller;
-import frc.robot.subsystems.roller.RollerConstants;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberConstants;
 
-public class CoralStackCommand extends Command {
-  private final Roller m_roller;
+public class ClimbDown extends Command {
+  private final Climber m_climber;
 
-  public CoralStackCommand(Roller roller) {
-    m_roller = roller;
-    addRequirements(roller);
+
+  public ClimbDown(Climber climber) {
+    m_climber = climber;
+    addRequirements(climber);
   }
 
   @Override
@@ -21,12 +22,12 @@ public class CoralStackCommand extends Command {
 
   @Override
   public void execute() {
-    m_roller.runPercent(RollerConstants.ROLLER_CORAL_STACK);
+    m_climber.runPercent(ClimberConstants.CLIMBER_SPEED_DOWN);
   }
 
   @Override
   public void end(boolean interrupted) {
-    m_roller.runPercent(0);
+    m_climber.runPercent(0);
   }
 
   @Override

@@ -4,35 +4,24 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants.ArmConstants;
-import frc.robot.subsystems.ArmSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Arm.Armposition;
 
-/** An ArmUpCommand that uses an Arm subsystem. */
 public class ArmUpCommand extends Command {
-  private final ArmSubsystem m_arm;
+  private final Arm m_arm;
 
-  /**
-   * Powers the arm up, when finished passively holds the arm up.
-   * 
-   * We recommend that you use this to only move the arm into the hardstop
-   * and let the passive portion hold the arm up.
-   *
-   * @param arm The subsystem used by this command.
-   */
-  public ArmUpCommand(ArmSubsystem arm) {
+  public ArmUpCommand(Arm arm) {
     m_arm = arm;
     addRequirements(arm);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_arm.runArm(ArmConstants.ARM_SPEED_UP);
+    m_arm.runtoPose(Armposition.TOP);
   }
 
   // Called once the command ends or is interrupted.
@@ -40,10 +29,9 @@ public class ArmUpCommand extends Command {
   // not drop due to gravity.
   @Override
   public void end(boolean interrupted) {
-    m_arm.runArm(ArmConstants.ARM_HOLD_UP);
+    m_arm.runPercent(0);
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;

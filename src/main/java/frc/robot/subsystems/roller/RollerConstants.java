@@ -11,24 +11,15 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot;
+package frc.robot.subsystems.roller;
 
-import edu.wpi.first.wpilibj.RobotBase;
+public class RollerConstants {
+  public static final int rollerCanId = 5;
+  public static final double motorReduction = 1.0;
+  public static final int currentLimit = 40;
 
-/**
- * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
- * you are doing, do not modify this file except to change the parameter class to the startRobot
- * call.
- */
-public final class Main {
-  private Main() {}
-
-  /**
-   * Main initialization function. Do not perform any initialization here.
-   *
-   * <p>If you change your main robot class, change the parameter type.
-   */
-  public static void main(String... args) {
-    RobotBase.startRobot(Robot::new);
-  }
+  public static final double ROLLER_CORAL_OUT = -0.4;
+  public static final double ROLLER_ALGAE_IN_SPEED = -0.8;
+  public static final double ROLLER_ALGAE_OUT_SPEED = 0.4;
+  public static final double ROLLER_CORAL_STACK = -1;
 }

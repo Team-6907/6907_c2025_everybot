@@ -11,24 +11,22 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot;
+package frc.robot.subsystems.climber;
 
-import edu.wpi.first.wpilibj.RobotBase;
+import org.littletonrobotics.junction.AutoLog;
 
-/**
- * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
- * you are doing, do not modify this file except to change the parameter class to the startRobot
- * call.
- */
-public final class Main {
-  private Main() {}
-
-  /**
-   * Main initialization function. Do not perform any initialization here.
-   *
-   * <p>If you change your main robot class, change the parameter type.
-   */
-  public static void main(String... args) {
-    RobotBase.startRobot(Robot::new);
+public interface ClimberIO {
+  @AutoLog
+  public static class ClimberIOInputs {
+    public double positionRad = 0.0;
+    public double velocityRadPerSec = 0.0;
+    public double appliedVolts = 0.0;
+    public double currentAmps = 0.0;
   }
+
+  /** Update the set of loggable inputs. */
+  public default void updateInputs(ClimberIOInputs inputs) {}
+
+  /** Run open loop at the specified voltage. */
+  public default void setVoltage(double volts) {}
 }

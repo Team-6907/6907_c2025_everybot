@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.roller.Roller;
 import frc.robot.subsystems.roller.RollerConstants;
 
-public class CoralStackCommand extends Command {
+public class AlgaeOutCommand extends Command {
   private final Roller m_roller;
 
-  public CoralStackCommand(Roller roller) {
+  public AlgaeOutCommand(Roller roller) {
     m_roller = roller;
     addRequirements(roller);
   }
@@ -21,7 +21,7 @@ public class CoralStackCommand extends Command {
 
   @Override
   public void execute() {
-    m_roller.runPercent(RollerConstants.ROLLER_CORAL_STACK);
+    m_roller.runPercent(RollerConstants.ROLLER_ALGAE_IN_SPEED);
   }
 
   @Override

@@ -1,5 +1,5 @@
 // Copyright (c) 2025 FRC 6907, The G.O.A.T
-package frc.robot.subsystems.roller;
+package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -9,18 +9,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class Roller extends SubsystemBase {
-  private final RollerIO io;
-  private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
+public class Climb extends SubsystemBase {
+  private final ClimbIO io;
+  private final ClimbIOInputsAutoLogged inputs = new ClimbIOInputsAutoLogged();
 
-  public Roller(RollerIO io) {
+  public Climb(ClimbIO io) {
     this.io = io;
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Roller", inputs);
+    Logger.processInputs("Climb", inputs);
   }
 
   public Command runPercent(double percent) {

@@ -1,5 +1,5 @@
 // Copyright (c) 2025 FRC 6907, The G.O.A.T
-package frc.robot.subsystems.roller;
+package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.MutCurrent;
 import edu.wpi.first.units.measure.MutVoltage;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface RollerIO {
+public interface ClimbIO {
   @AutoLog
   public static class RollerIOInputs {
     public MutAngle positionRad = Degrees.mutable(0.0);

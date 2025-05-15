@@ -11,7 +11,7 @@ public class DriveConstants {
   public static final double trackWidth = Units.inchesToMeters(26.0);
 
   // Device CAN IDs
-  public static final int pigeonCanId = 9;
+  public static final int pigeonCanId = 9; // TODO: Change this.
   public static final int leftLeaderCanId = 1;
   public static final int leftFollowerCanId = 2;
   public static final int rightLeaderCanId = 3;
@@ -26,10 +26,10 @@ public class DriveConstants {
   public static final DCMotor gearbox = DCMotor.getCIM(2);
 
   // Velocity PID configuration
-  public static final double realKp = 0.0;
-  public static final double realKd = 0.0;
-  public static final double realKs = 0.0;
-  public static final double realKv = 0.1;
+  public static final double realKp = 0.0; // TODO: Change this.
+  public static final double realKd = 0.0; // TODO: Change this.
+  public static final double realKs = 0.0; // TODO: Change this.
+  public static final double realKv = 0.1; // TODO: Change this.
 
   public static final double simKp = 0.05;
   public static final double simKd = 0.0;

@@ -1,5 +1,5 @@
 // Copyright (c) 2025 FRC 6907, The G.O.A.T
-package frc.robot.subsystems.roller;
+package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.subsystems.roller.RollerConstants.*;
@@ -10,7 +10,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class RollerIOSim implements RollerIO {
+public class ClimbIOSim implements ClimbIO {
   private DCMotorSim sim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, motorReduction),

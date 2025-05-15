@@ -1,5 +1,5 @@
 // Copyright (c) 2025 FRC 6907, The G.O.A.T
-package frc.robot.subsystems.roller;
+package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.subsystems.roller.RollerConstants.*;
@@ -16,26 +16,26 @@ import edu.wpi.first.units.measure.*;
 /**
  * This roller implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60.
  */
-public class RollerIOTalonFX implements RollerIO {
-  private final TalonFX roller = new TalonFX(climbCanId);
-  private final StatusSignal<Angle> positionRot = roller.getPosition();
-  private final StatusSignal<AngularVelocity> velocityRotPerSec = roller.getVelocity();
-  private final StatusSignal<Voltage> appliedVolts = roller.getMotorVoltage();
-  private final StatusSignal<Current> currentAmps = roller.getSupplyCurrent();
+public class ClimbIOTalonFX implements ClimbIO {
+  private final TalonFX climb = new TalonFX(climbCanId);
+  private final StatusSignal<Angle> positionRot = climb.getPosition();
+  private final StatusSignal<AngularVelocity> velocityRotPerSec = climb.getVelocity();
+  private final StatusSignal<Voltage> appliedVolts = climb.getMotorVoltage();
+  private final StatusSignal<Current> currentAmps = climb.getSupplyCurrent();
 
   private final MotionMagicVelocityDutyCycle voltageRequest = new MotionMagicVelocityDutyCycle(0);
 
-  public RollerIOTalonFX() {
+  public ClimbIOTalonFX() {
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = currentLimit;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    tryUntilOk(5, () -> roller.getConfigurator().apply(config, 0.25));
+    tryUntilOk(5, () -> climb.getConfigurator().apply(config, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
-    roller.optimizeBusUtilization();
+    climb.optimizeBusUtilization();
   }
 
   @Override
@@ -51,6 +51,6 @@ public class RollerIOTalonFX implements RollerIO {
 
   @Override
   public void runVelocity(AngularVelocity angularVelocity) {
-    roller.setControl(voltageRequest.withVelocity(angularVelocity));
+    climb.setControl(voltageRequest.withVelocity(angularVelocity));
   }
 }

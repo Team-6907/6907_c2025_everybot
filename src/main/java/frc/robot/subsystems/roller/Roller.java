@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.units.measure.*;
+import static edu.wpi.first.units.Units.*;
 
 public class Roller extends SubsystemBase {
   private final RollerIO io;
@@ -21,12 +23,12 @@ public class Roller extends SubsystemBase {
   }
 
   public Command runPercent(double percent) {
-    return runEnd(() -> io.setVoltage(percent * 12.0), () -> io.setVoltage(0.0));
+    return runEnd(() -> io.runVolts(Volts.of((percent * 12.0))), () -> io.runVolts(Volts.of((0.0))));
   }
 
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {
     return runEnd(
-        () -> io.setVoltage((forward.getAsDouble() - reverse.getAsDouble()) * 12.0),
-        () -> io.setVoltage(0.0));
+        () -> io.runVolts(Volts.of(((forward.getAsDouble() - reverse.getAsDouble()) * 12.0))),
+        () -> io.runVolts(Volts.of((0.0))));
   }
 }

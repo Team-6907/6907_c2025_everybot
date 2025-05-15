@@ -12,6 +12,8 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
+  public static final boolean tuningMode = true;
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
@@ -21,5 +23,9 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static final class CommunicationConstants {
+    public static final double kLongCANTimeoutSec = 0.1;
   }
 }

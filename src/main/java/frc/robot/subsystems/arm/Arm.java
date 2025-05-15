@@ -3,21 +3,19 @@ package frc.robot.subsystems.arm;
 
 import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
-import edu.wpi.first.wpilibj.DriverStation;
+import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import lombok.Getter;
-
-public class Arm extends SubsystemBase{
+public class Arm extends SubsystemBase {
   private final ArmIO io;
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
 
@@ -55,32 +53,33 @@ public class Arm extends SubsystemBase{
 
   public Arm(ArmIO io) {
     this.io = io;
+    io.resetPosition(Degrees.of(0));
   }
-
 
   public void goToPosition(ArmState armState) {
     setpoint = armState.getSetpoint();
-    if (setpoint instanceof Angle angleSetpoint) {
-      Angle clampedSetpoint = angleSetpoint;
-      if (angleSetpoint.lt(ARM_MIN_ANGLE)) {
-        clampedSetpoint = ARM_MIN_ANGLE;
-      } else if (angleSetpoint.gt(ARM_MAX_ANGLE)) {
-        clampedSetpoint = ARM_MAX_ANGLE;
-      } 
-
-      this.setpoint = clampedSetpoint;
-      this.currentGoal = clampedSetpoint;
-      this.atGoal = false;
-      goalDebouncer.calculate(false);
-      Logger.recordOutput("Arm/CommandedSetpoint", clampedSetpoint.in(Degrees));
-    } else {
-      DriverStation.reportError(
-        "["
-              + "Arm"
-              + "] Invalid setpoint type. Expected Angle, got "
-              + setpoint.getClass().getSimpleName(),
-          false);
+    // if (setpoint instanceof Angle angleSetpoint) {
+    Angle clampedSetpoint = setpoint;
+    if (setpoint.lt(ARM_MIN_ANGLE)) {
+      clampedSetpoint = ARM_MIN_ANGLE;
+    } else if (setpoint.gt(ARM_MAX_ANGLE)) {
+      clampedSetpoint = ARM_MAX_ANGLE;
     }
+
+    this.setpoint = clampedSetpoint;
+    this.currentGoal = clampedSetpoint;
+    this.atGoal = false;
+    goalDebouncer.calculate(false);
+    Logger.recordOutput("Arm/CommandedSetpoint", clampedSetpoint.in(Degrees));
+    /*} else {
+    DriverStation.reportError(
+        "["
+            + "Arm"
+            + "] Invalid setpoint type. Expected Angle, got "
+            + setpoint.getClass().getSimpleName(),
+        false);
+        */
+    // }
   }
 
   public Measure<AngleUnit> getCurrentPosition() {
@@ -104,16 +103,16 @@ public class Arm extends SubsystemBase{
   }
 
   public Command runPercent(double percent) {
-    return runEnd(() -> io.setVoltage(percent * 12.0), () -> io.setVoltage(0.0));
+    return runEnd(() -> io.runVolts(Volts.of(percent * 12.0)), () -> io.runVolts(Volts.of(0.0)));
   }
 
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {
     return runEnd(
-        () -> io.setVoltage((forward.getAsDouble() - reverse.getAsDouble()) * 12.0),
-        () -> io.setVoltage(0.0));
+        () -> io.runVolts(Volts.of((forward.getAsDouble() - reverse.getAsDouble()) * 12.0)),
+        () -> io.runVolts(Volts.of(0.0)));
   }
 
-    public Command setSetpointCommand(ArmState targetSetpoint) {
+  public Command setSetpointCommand(ArmState targetSetpoint) {
     return Commands.runOnce(() -> goToPosition(targetSetpoint))
         .withName("ArmInternalSet_" + String.format("%.1f", targetSetpoint));
   }

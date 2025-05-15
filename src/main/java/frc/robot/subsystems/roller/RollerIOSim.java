@@ -2,6 +2,8 @@
 package frc.robot.subsystems.roller;
 
 import static frc.robot.subsystems.roller.RollerConstants.*;
+import edu.wpi.first.units.measure.*;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -21,14 +23,14 @@ public class RollerIOSim implements RollerIO {
     sim.setInputVoltage(appliedVolts);
     sim.update(0.02);
 
-    inputs.positionRad = sim.getAngularPositionRad();
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
-    inputs.appliedVolts = appliedVolts;
-    inputs.currentAmps = sim.getCurrentDrawAmps();
+    inputs.positionRad.mut_replace(sim.getAngularPosition().in(Degrees), Degrees);
+    inputs.velocityRadPerSec.mut_replace(sim.getAngularVelocity().in(DegreesPerSecond), DegreesPerSecond);
+    inputs.appliedVolts.mut_replace(appliedVolts, Volts);
+    inputs.currentAmps.mut_replace(sim.getCurrentDrawAmps(), Amps);
   }
 
   @Override
-  public void setVoltage(double volts) {
-    appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+  public void runVolts(Voltage volts) {
+    appliedVolts = MathUtil.clamp(volts.in(Volts), -12.0, 12.0);
   }
 }

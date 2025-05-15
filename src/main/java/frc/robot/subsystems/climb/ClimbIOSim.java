@@ -19,7 +19,7 @@ public class ClimbIOSim implements ClimbIO {
   private double appliedVolts = 0.0;
 
   @Override
-  public void updateInputs(RollerIOInputs inputs) {
+  public void updateInputs(ClimbIOInputs inputs) {
     sim.setInputVoltage(appliedVolts);
     sim.update(0.02);
 

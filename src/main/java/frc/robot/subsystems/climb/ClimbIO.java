@@ -13,7 +13,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ClimbIO {
   @AutoLog
-  public static class RollerIOInputs {
+  public static class ClimbIOInputs {
     public MutAngle positionRad = Degrees.mutable(0.0);
     public MutAngularVelocity velocityRadPerSec = DegreesPerSecond.mutable(0.0);
     public MutVoltage appliedVolts = Volts.mutable(0.0);
@@ -21,7 +21,7 @@ public interface ClimbIO {
   }
 
   /** Update the set of loggable inputs. */
-  public default void updateInputs(RollerIOInputs inputs) {}
+  public default void updateInputs(ClimbIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
   public default void runVelocity(AngularVelocity angularVelocity) {}

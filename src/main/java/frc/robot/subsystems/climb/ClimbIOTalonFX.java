@@ -39,7 +39,7 @@ public class ClimbIOTalonFX implements ClimbIO {
   }
 
   @Override
-  public void updateInputs(RollerIOInputs inputs) {
+  public void updateInputs(ClimbIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
     inputs.positionRad.mut_replace(positionRot.getValue().in(Degrees), Degrees);

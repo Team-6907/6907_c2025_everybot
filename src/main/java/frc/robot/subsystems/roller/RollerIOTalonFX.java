@@ -9,6 +9,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.*;
@@ -52,5 +53,10 @@ public class RollerIOTalonFX implements RollerIO {
   @Override
   public void runVelocity(AngularVelocity angularVelocity) {
     roller.setControl(voltageRequest.withVelocity(angularVelocity));
+  }
+
+  @Override
+  public void runVolts(Voltage volts) {
+    roller.setControl(new VoltageOut(volts));
   }
 }

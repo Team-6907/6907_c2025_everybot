@@ -27,8 +27,6 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
-
 public class DriveToPose extends Command {
   private static final LoggedTunableNumber drivekP = new LoggedTunableNumber("DriveToPose/DrivekP");
   private static final LoggedTunableNumber drivekD = new LoggedTunableNumber("DriveToPose/DrivekD");
@@ -56,7 +54,7 @@ public class DriveToPose extends Command {
   static {
     drivekP.initDefault(4.0); // 4.0
     drivekD.initDefault(0.0);
-    thetakP.initDefault(6.5); // 4.5
+    thetakP.initDefault(8.0); // 4.5
     thetakD.initDefault(0.0);
     driveMaxVelocity.initDefault(3.0); // 1.2 2.0
     driveMaxAcceleration.initDefault(2.5); // 2.0
@@ -206,13 +204,10 @@ public class DriveToPose extends Command {
             .transformBy(Util.toTransform2d(driveController.getSetpoint().position, 0.0))
             .getTranslation();
 
-    double thetaVelocity =
-        thetaController.getSetpoint().velocity * ffScaler
-            + thetaController.calculate(
-                currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-    thetaErrorAbs =
-        Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
-    if (thetaErrorAbs < thetaController.getPositionTolerance()) thetaVelocity = 0.0;
+    /*  double thetaVelocity =
+    thetaController.getSetpoint().velocity * ffScaler
+        + thetaController.calculate(
+            currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());*/
 
     Translation2d driveVelocity =
         new Pose2d(
@@ -223,95 +218,97 @@ public class DriveToPose extends Command {
 
     atGoalFlag = atGoalSupplier.getAsBoolean();
 
+    Rotation2d headingToTarget =
+        currentPose.getTranslation().minus(targetPose.getTranslation()).unaryMinus().getAngle();
+    Rotation2d angleError = currentPose.getRotation().minus(headingToTarget).unaryMinus();
 
-    if (atGoalFlag) {
-      Translation2d manualDriveVelocity = linearFF.get();
-      double manualThetaVelocity = thetaVelocity;
-      drive.runClosedLoop(
-          new ChassisSpeeds(
-              manualDriveVelocity.getX(), manualDriveVelocity.getY(), manualThetaVelocity));
-    } else {
+    double thetaVelocity =
+        thetaController.getSetpoint().velocity * ffScaler
+            + thetaController.calculate(
+                currentPose.getRotation().getRadians(), headingToTarget.getRadians());
 
-      Rotation2d headingToTarget =
-          currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle();
+    thetaErrorAbs = Math.abs(angleError.getRadians());
 
-      thetaVelocity =
-              thetaController.calculate(
-                  currentPose.getRotation().getRadians(), headingToTarget.getRadians());
+    if (thetaErrorAbs < thetaController.getPositionTolerance()) thetaVelocity = 0.0;
 
-      Translation2d robotRelativeVelocity =
-              driveVelocity.rotateBy(headingToTarget.unaryMinus());
-      
-      drive.runClosedLoop(new ChassisSpeeds(
-                robotRelativeVelocity.getX(),  
-                0.0,                           
-                thetaVelocity));
-        
+    Translation2d robotRelativeVelocity = driveVelocity.rotateBy(headingToTarget.unaryMinus());
 
-      if (currentDistance < driveController.getPositionTolerance()) {
-            thetaVelocity =
-                thetaController.calculate(
-                    currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-  
-            drive.runClosedLoop(new ChassisSpeeds(
-                                0.0, 
-                                0.0, 
-                                thetaVelocity));
-          }
+    if (currentDistance < driveController.getPositionTolerance()) {
 
-      /*Rotation2d headingToTarget =
-          currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle();
+      thetaController.setP(thetakP.get() * 2.0);
 
-      switch (currentState) {
-        case ROTATE_TO_TARGET:
-          // rotate to goal direction
-          thetaVelocity =
-              thetaController.calculate(
-                  currentPose.getRotation().getRadians(), headingToTarget.getRadians());
+      double angleToTarget =
+          Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
 
-          if (Math.abs(currentPose.getRotation().minus(headingToTarget).getRadians())
-              < thetaController.getPositionTolerance()) {
-            currentState = DriveState.DRIVE_TO_TARGET;
-          }
+      double finalRotationFF =
+          MathUtil.clamp(angleToTarget / Units.degreesToRadians(45.0), 0.0, 1.0);
 
-          drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity));
-          break;
-
-        case DRIVE_TO_TARGET:
-          // keep direction
-          Translation2d robotRelativeVelocity =
-              driveVelocity.rotateBy(headingToTarget.unaryMinus());
-
-          if (currentDistance < driveController.getPositionTolerance()) {
-            currentState = DriveState.ROTATE_TO_FINAL;
-          }
-
-          drive.runClosedLoop(new ChassisSpeeds(robotRelativeVelocity.getX(), 0.0, 0));
-          break;
-
-        case ROTATE_TO_FINAL:
-          // rotate to goal rotation
-          thetaVelocity =
-              thetaController.calculate(
+      double thetaVelocity1 =
+          thetaController.getSetpoint().velocity * finalRotationFF
+              + thetaController.calculate(
                   currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
 
-          drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity));
-          break;*/
-      }
+      double thetaErrorAbs1 =
+          Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
 
-      // Log data
-      Logger.recordOutput("DriveToPose/DistanceMeasured", currentDistance);
-      Logger.recordOutput("DriveToPose/DistanceSetpoint", driveController.getSetpoint().position);
-      Logger.recordOutput("DriveToPose/ThetaMeasured", currentPose.getRotation().getRadians());
-      Logger.recordOutput("DriveToPose/ThetaSetpoint", thetaController.getSetpoint().position);
-      Logger.recordOutput(
-          "DriveToPose/Setpoint",
-          new Pose2d(
-              lastSetpointTranslation,
-              Rotation2d.fromRadians(thetaController.getSetpoint().position)));
-      Logger.recordOutput("DriveToPose/Goal", targetPose);
+      if (thetaErrorAbs1 < thetaController.getPositionTolerance()) thetaVelocity1 = 0.0;
+
+      drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity1));
+    } else {
+      drive.runClosedLoop(new ChassisSpeeds(robotRelativeVelocity.getX(), 0.0, thetaVelocity));
     }
-  
+
+    /*Rotation2d headingToTarget =
+        currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle();
+
+    switch (currentState) {
+      case ROTATE_TO_TARGET:
+        // rotate to goal direction
+        thetaVelocity =
+            thetaController.calculate(
+                currentPose.getRotation().getRadians(), headingToTarget.getRadians());
+
+        if (Math.abs(currentPose.getRotation().minus(headingToTarget).getRadians())
+            < thetaController.getPositionTolerance()) {
+          currentState = DriveState.DRIVE_TO_TARGET;
+        }
+
+        drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity));
+        break;
+
+      case DRIVE_TO_TARGET:
+        // keep direction
+        Translation2d robotRelativeVelocity =
+            driveVelocity.rotateBy(headingToTarget.unaryMinus());
+
+        if (currentDistance < driveController.getPositionTolerance()) {
+          currentState = DriveState.ROTATE_TO_FINAL;
+        }
+
+        drive.runClosedLoop(new ChassisSpeeds(robotRelativeVelocity.getX(), 0.0, 0));
+        break;
+
+      case ROTATE_TO_FINAL:
+        // rotate to goal rotation
+        thetaVelocity =
+            thetaController.calculate(
+                currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+
+        drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity));
+        break;*/
+
+    // Log data
+    Logger.recordOutput("DriveToPose/DistanceMeasured", currentDistance);
+    Logger.recordOutput("DriveToPose/DistanceSetpoint", driveController.getSetpoint().position);
+    Logger.recordOutput("DriveToPose/ThetaMeasured", currentPose.getRotation().getRadians());
+    Logger.recordOutput("DriveToPose/ThetaSetpoint", thetaController.getSetpoint().position);
+    Logger.recordOutput(
+        "DriveToPose/Setpoint",
+        new Pose2d(
+            lastSetpointTranslation,
+            Rotation2d.fromRadians(thetaController.getSetpoint().position)));
+    Logger.recordOutput("DriveToPose/Goal", targetPose);
+  }
 
   @Override
   public void end(boolean interrupted) {

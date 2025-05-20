@@ -39,6 +39,8 @@ public class DriveConstants {
   public static final boolean rightInverted = true;
   public static final DCMotor gearbox = DCMotor.getCIM(2);
 
+  public static final double kCancoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI;
+
   // Velocity PID configuration
   public static final double realKp = 0.0;
   public static final double realKd = 0.0;

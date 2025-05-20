@@ -119,6 +119,7 @@ public class Drive extends SubsystemBase {
 
     // Update odometry
     poseEstimator.update(rawGyroRotation, getLeftPositionMeters(), getRightPositionMeters());
+    Logger.recordOutput("Estimatedpose", poseEstimator.getEstimatedPosition());
   }
 
   /** Runs the drive at the desired velocity. */
@@ -213,5 +214,18 @@ public class Drive extends SubsystemBase {
   /** Returns the average velocity in radians/second. */
   public double getCharacterizationVelocity() {
     return (inputs.leftVelocityRadPerSec + inputs.rightVelocityRadPerSec) / 2.0;
+  }
+
+  public ChassisSpeeds getDriveSpeedFieldRelative() {
+    DifferentialDriveWheelSpeeds wheelSpeeds =
+        new DifferentialDriveWheelSpeeds(
+            getLeftVelocityMetersPerSec(), getRightVelocityMetersPerSec());
+    ChassisSpeeds robotRelativeSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
+        robotRelativeSpeeds.vxMetersPerSecond,
+        robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.omegaRadiansPerSecond,
+        getRotation());
   }
 }

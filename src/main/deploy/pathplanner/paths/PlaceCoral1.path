@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.585319010416666,
-        "y": 6.652197627314815
+        "x": 8.140752551020409,
+        "y": 6.06578443877551
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.695252066386318,
-        "y": 6.652197627314815
+        "x": 6.976721938775511,
+        "y": 6.06578443877551
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.132468171296296,
-        "y": 5.18579788773148
+        "x": 5.208290816326532,
+        "y": 5.073373724489795
       },
       "prevControl": {
-        "x": 5.77864231772467,
-        "y": 6.305004339882877
+        "x": 5.536607142857143,
+        "y": 5.774776785714286
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "placecoral1"
     }
   ],
   "rotationTargets": [],
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

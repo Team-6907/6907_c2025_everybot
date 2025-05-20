@@ -20,14 +20,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.AlgaeInCommand;
-import frc.robot.commands.AlgaeOutCommand;
-import frc.robot.commands.ArmDownCommand;
-import frc.robot.commands.ArmUpCommand;
-import frc.robot.commands.ClimbDown;
-import frc.robot.commands.ClimbUp;
-import frc.robot.commands.CoralOutCommand;
-import frc.robot.commands.CoralStackCommand;
+import frc.robot.commands.AlgaeCommands;
+import frc.robot.commands.ArmCommands;
+import frc.robot.commands.ClimbCommands;
+import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -41,7 +37,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
-import frc.robot.subsystems.drive.DriveIOTalonFX;
+import frc.robot.subsystems.drive.DriveIOTalonSRXandVictorSPX;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.roller.Roller;
@@ -64,13 +60,13 @@ public class RobotContainer {
   private final Climber climber;
 
   // Controller
-  //private final CommandXboxController controller = new CommandXboxController(0);
+  // private final CommandXboxController controller = new CommandXboxController(0);
 
   private final CommandXboxController driverController =
-  new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
+      new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 
-  private final CommandXboxController operatorController = 
-  new CommandXboxController(Constants.OPERATOR_CONTROLLER_PORT);
+  private final CommandXboxController operatorController =
+      new CommandXboxController(Constants.OPERATOR_CONTROLLER_PORT);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -80,7 +76,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        drive = new Drive(new DriveIOTalonFX(), new GyroIOPigeon2());
+        drive = new Drive(new DriveIOTalonSRXandVictorSPX(), new GyroIOPigeon2());
         roller = new Roller(new RollerIOTalonFX());
         arm = new Arm(new ArmIOTalonFX());
         climber = new Climber(new ClimberIOTalonFX() {});
@@ -104,7 +100,8 @@ public class RobotContainer {
     }
 
     // Set up auto routines
-    NamedCommands.registerCommand("Score", roller.runPercent(1.0).withTimeout(3.0));
+    NamedCommands.registerCommand(
+        "ScoreCoral", CoralCommands.CoralOutCommand(roller).withTimeout(2.0));
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -135,42 +132,42 @@ public class RobotContainer {
     // Default drive command, normal arcade drive
 
     arm.resetPosion();
-    
-    drive.setDefaultCommand(DriveCommands.arcadeDrive(drive,
-        () -> -driverController.getLeftY(),
-        () -> -driverController.getRightX())
-    );
 
-    driverController.leftBumper().whileTrue(DriveCommands.arcadeDrive(drive, 
-        () -> -driverController.getLeftY() * DriveConstants.SLOW_MODE_MOVE,  
-        () -> -driverController.getRightX() * DriveConstants.SLOW_MODE_TURN)
-    );
-    
+    drive.setDefaultCommand(
+        DriveCommands.arcadeDrive(
+            drive, () -> -driverController.getLeftY(), () -> -driverController.getRightX()));
 
-    operatorController.rightBumper().whileTrue(new AlgaeInCommand(roller));
+    driverController
+        .leftBumper()
+        .whileTrue(
+            DriveCommands.arcadeDrive(
+                drive,
+                () -> -driverController.getLeftY() * DriveConstants.SLOW_MODE_MOVE,
+                () -> -driverController.getRightX() * DriveConstants.SLOW_MODE_TURN));
+
+    operatorController.rightBumper().whileTrue(AlgaeCommands.SimpleAlgaeInCommand(roller));
+    // operatorController.rightBumper().whileTrue(roller.runPercent(1.0));
+
     // Here we use a trigger as a button when it is pushed past a certain threshold
-    operatorController.rightTrigger(.2).whileTrue(new AlgaeOutCommand(roller));
+    operatorController.rightTrigger(.2).whileTrue(AlgaeCommands.SimpleAlgaeOutCommand(roller));
 
-    
-    operatorController.leftBumper().whileTrue(new ArmUpCommand(arm));
-    operatorController.leftTrigger(.2).whileTrue(new ArmDownCommand(arm));
-
-    /**
-     * Used to score coral, the stack command is for when there is already coral
-     * in L1 where you are trying to score. The numbers may need to be tuned, 
-     * make sure the rollers do not wear on the plastic basket.
-     */
-    operatorController.x().whileTrue(new CoralOutCommand(roller));
-    operatorController.y().whileTrue(new CoralStackCommand(roller));
+    operatorController.leftBumper().whileTrue(ArmCommands.ArmTOPCommand(arm));
+    operatorController.leftTrigger(.2).whileTrue(ArmCommands.ArmBOTTOMCommand(arm));
 
     /**
-     * POV is a direction on the D-Pad or directional arrow pad of the controller,
-     * the direction of this will be different depending on how your winch is wound
+     * Used to score coral, the stack command is for when there is already coral in L1 where you are
+     * trying to score. The numbers may need to be tuned, make sure the rollers do not wear on the
+     * plastic basket.
      */
-    operatorController.pov(0).whileTrue(new ClimbUp(climber));
-    operatorController.pov(180).whileTrue(new ClimbDown(climber));
+    operatorController.x().whileTrue(CoralCommands.CoralOutCommand(roller));
+    operatorController.y().whileTrue(CoralCommands.CoralStackCommand(roller));
 
-
+    /**
+     * POV is a direction on the D-Pad or directional arrow pad of the controller, the direction of
+     * this will be different depending on how your winch is wound
+     */
+    operatorController.pov(0).whileTrue(ClimbCommands.ClimbUp(climber));
+    operatorController.pov(180).whileTrue(ClimbCommands.ClimbDown(climber));
   }
 
   /**

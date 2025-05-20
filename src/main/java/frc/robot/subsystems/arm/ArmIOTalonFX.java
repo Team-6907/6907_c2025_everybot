@@ -14,16 +14,17 @@
 package frc.robot.subsystems.arm;
 
 import static frc.robot.subsystems.arm.ArmConstants.armCanId;
-import static frc.robot.subsystems.roller.RollerConstants.currentLimit;
+import static frc.robot.subsystems.arm.ArmConstants.currentLimit;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -43,18 +44,37 @@ public class ArmIOTalonFX implements ArmIO {
   private final StatusSignal<Current> currentAmps = arm.getSupplyCurrent();
   private double goal_setpoint;
 
-  private final PIDController pidController =
-      new PIDController(ArmConstants.real_kP, ArmConstants.real_kI, ArmConstants.real_kD);
-
   private final VoltageOut voltageRequest = new VoltageOut(0.0);
 
-  public ArmIOTalonFX() {
-    var config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = currentLimit;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  private TalonFXConfiguration armConfig = new TalonFXConfiguration();
+  private MotionMagicVoltage mMotionMagicVoltage = new MotionMagicVoltage(0.0);
 
-    tryUntilOk(5, () -> arm.getConfigurator().apply(config, 0.25));
+  public ArmIOTalonFX() {
+
+    armConfig.MotionMagic.MotionMagicCruiseVelocity = 1000 / ArmConstants.kArmGearRatio;
+    armConfig.MotionMagic.MotionMagicAcceleration =
+        5000 * armConfig.MotionMagic.MotionMagicCruiseVelocity;
+    armConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    armConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    armConfig.CurrentLimits.SupplyCurrentLimit = currentLimit;
+
+    armConfig.Slot0.kP = ArmConstants.real_kP;
+    armConfig.Slot0.kI = ArmConstants.real_kI;
+    armConfig.Slot0.kD = ArmConstants.real_kD;
+    armConfig.Slot0.kA = ArmConstants.real_kA;
+    armConfig.Slot0.kS = ArmConstants.real_kS;
+    armConfig.Slot0.kG = ArmConstants.real_kG;
+    // armConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+    // 一堆不知道用处的config
+    armConfig.Feedback.SensorToMechanismRatio = ArmConstants.kArmGearRatio;
+    armConfig.Voltage.PeakForwardVoltage = 12.0;
+    armConfig.Voltage.PeakReverseVoltage = -12.0;
+    armConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.02;
+    armConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+
+    tryUntilOk(5, () -> arm.getConfigurator().apply(armConfig, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
@@ -65,8 +85,8 @@ public class ArmIOTalonFX implements ArmIO {
   public void updateInputs(ArmIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.positionRad = Units.rotationsToRadians(positionRot.getValueAsDouble());
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocityRotPerSec.getValueAsDouble());
+    inputs.positionDegree = Units.rotationsToDegrees(positionRot.getValueAsDouble());
+    inputs.velocityDegreePerSec = Units.rotationsToDegrees(velocityRotPerSec.getValueAsDouble());
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
     inputs.currentAmps = currentAmps.getValueAsDouble();
   }
@@ -95,9 +115,7 @@ public class ArmIOTalonFX implements ArmIO {
 
     Logger.recordOutput("Arm_goal_setpoint", goal_setpoint);
 
-    pidController.setSetpoint(goal_setpoint);
-    double speed = pidController.calculate(arm.getPosition().getValueAsDouble());
-    arm.setVoltage(speed);
+    arm.setControl(mMotionMagicVoltage.withPosition(goal_setpoint));
   }
 
   public void resetPosition() {

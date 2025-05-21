@@ -16,21 +16,21 @@ package frc.robot.subsystems.drive;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
-
-import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 /** This drive implementation is for Talon FXs driving motors like the Falon 500 or Kraken X60. */
 public class DriveIOTalonSRXandVictorSPX implements DriveIO {
-  private static final double tickPerRevolution = 1440;
+  private static final double tickPerRevolution = 4096 / motorReduction;
 
   private final TalonSRX leftLeader = new TalonSRX(leftLeaderCanId);
   private final VictorSPX leftFollower = new VictorSPX(leftFollowerCanId);
@@ -39,6 +39,13 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
 
   private final CANcoder leftCANcoder = new CANcoder(1);
   private final CANcoder rightCANcoder = new CANcoder(2);
+
+  private final ProfiledPIDController leftPIDController =
+      new ProfiledPIDController(0.0, 0.0, 0.0, 
+        new TrapezoidProfile.Constraints(maxSpeedMetersPerSec * motorReduction, 0.0), 0.02);
+  private final ProfiledPIDController rightPIDController =
+      new ProfiledPIDController(0.0, 0.0, 0.0, 
+        new TrapezoidProfile.Constraints(maxSpeedMetersPerSec * motorReduction, 0.0), 0.02);
 
   public DriveIOTalonSRXandVictorSPX() {
     leftFollower.follow(leftLeader);
@@ -50,14 +57,18 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
     configTalon.peakCurrentDuration = 250;
     configTalon.voltageCompSaturation = 12.0;
 
-    tryUntilOkV5(5, () -> leftLeader.configAllSettings(configTalon));
+
     tryUntilOkV5(5, () -> rightLeader.configAllSettings(configTalon));
+    tryUntilOkV5(5, () -> leftLeader.configAllSettings(configTalon));
 
     leftLeader.setInverted(leftInverted);
     rightLeader.setInverted(rightInverted);
+    leftLeader.setNeutralMode(NeutralMode.Brake);
+    rightLeader.setNeutralMode(NeutralMode.Brake);
 
     //config VictorSPX
-    //nothing to config
+    leftFollower.setNeutralMode(NeutralMode.Brake);
+    rightFollower.setNeutralMode(NeutralMode.Brake);
 
   }
 
@@ -94,17 +105,28 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
 
   @Override
   public void setVelocity(
-      double leftRadPerSec, double rightRadPerSec, double leftFFVolts, double rightFFVolts) {
+      double leftRadPerSec, double rightRadPerSec) {
     // OK to just divide FF by 12 because voltage compensation is enabled
-    leftLeader.set(
+    
+    double m_leftVolt = leftPIDController.calculate(leftRadPerSec);
+    double m_rightVolt = rightPIDController.calculate(rightRadPerSec);
+
+    leftLeader.set(ControlMode.PercentOutput, m_leftVolt / 12);
+    rightLeader.set(ControlMode.PercentOutput, m_rightVolt / 12);
+
+    
+    /*leftLeader.set(
         TalonSRXControlMode.Velocity,
-        Units.radiansToRotations(leftRadPerSec) / 10.0, // Raw units are ticks per 100ms :(
+        Units.radiansToRotations(leftPIDController.calculate(leftRadPerSec)) / 10.0, // Raw units are ticks per 100ms :(
         DemandType.ArbitraryFeedForward,
         leftFFVolts / 12.0);
     rightLeader.set(
         TalonSRXControlMode.Velocity,
-        Units.radiansToRotations(rightRadPerSec) / 10.0, // Raw units are ticks per 100ms :(
+        Units.radiansToRotations(leftPIDController.calculate(rightRadPerSec)) / 10.0, // Raw units are ticks per 100ms :(
         DemandType.ArbitraryFeedForward,
         rightFFVolts / 12.0);
+        */
   }
+
+  
 }

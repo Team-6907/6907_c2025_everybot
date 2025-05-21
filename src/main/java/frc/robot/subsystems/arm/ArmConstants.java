@@ -11,8 +11,8 @@ public class ArmConstants {
   public static final double ARM_SPEED_UP = -0.4;
   public static final double ARM_HOLD_DOWN = 0;
   public static final double ARM_HOLD_UP = -0;
-  public static final double ARM_POSITION_TOP = 0; // degree  need to change, when arm is home
-  public static final double ARM_POSITION_BOTTOM = 90; // degree  need to change
+  public static final double ARM_POSITION_TOP = 0; // Unit:radians, when arm is home
+  public static final double ARM_POSITION_BOTTOM = 0.5; // Unit:radians  need to change
 
   public static final double real_kP = 0;
   public static final double real_kI = 0;

@@ -15,7 +15,7 @@ package frc.robot.subsystems.roller;
 
 public class RollerConstants {
   public static final int rollerCanId = 5;
-  public static final double motorReduction = 10;
+  public static final double motorReduction = 1.5;
   public static final int currentLimit = 40;
 
   public static final double ROLLER_CORAL_OUT = -0.4;

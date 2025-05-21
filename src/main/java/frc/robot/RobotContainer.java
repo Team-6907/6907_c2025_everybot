@@ -59,8 +59,6 @@ public class RobotContainer {
   private final Arm arm;
   private final Climber climber;
 
-  // Controller
-  // private final CommandXboxController controller = new CommandXboxController(0);
 
   private final CommandXboxController driverController =
       new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -131,8 +129,6 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default drive command, normal arcade drive
 
-    arm.resetPosion();
-
     drive.setDefaultCommand(
         DriveCommands.arcadeDrive(
             drive, () -> -driverController.getLeftY(), () -> -driverController.getRightX()));
@@ -146,9 +142,6 @@ public class RobotContainer {
                 () -> -driverController.getRightX() * DriveConstants.SLOW_MODE_TURN));
 
     operatorController.rightBumper().whileTrue(AlgaeCommands.SimpleAlgaeInCommand(roller));
-    // operatorController.rightBumper().whileTrue(roller.runPercent(1.0));
-
-    // Here we use a trigger as a button when it is pushed past a certain threshold
     operatorController.rightTrigger(.2).whileTrue(AlgaeCommands.SimpleAlgaeOutCommand(roller));
 
     operatorController.leftBumper().whileTrue(ArmCommands.ArmTOPCommand(arm));
@@ -168,6 +161,9 @@ public class RobotContainer {
      */
     operatorController.pov(0).whileTrue(ClimbCommands.ClimbUp(climber));
     operatorController.pov(180).whileTrue(ClimbCommands.ClimbDown(climber));
+
+    //test arm position constant
+    operatorController.b().whileTrue(arm.runPercent(0.3));
   }
 
   /**

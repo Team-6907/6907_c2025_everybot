@@ -41,4 +41,10 @@ public class Climber extends SubsystemBase {
         () -> io.setVoltage((forward.getAsDouble() - reverse.getAsDouble()) * 12.0),
         () -> io.setVoltage(0.0));
   }
+
+  public Command climbtestCommand() {
+    return runEnd(
+      () -> io.climbtest(),
+      () -> io.setVoltage(0.0));
+  }
 }

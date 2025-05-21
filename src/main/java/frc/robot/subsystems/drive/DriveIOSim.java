@@ -71,7 +71,7 @@ public class DriveIOSim implements DriveIO {
 
   @Override
   public void setVelocity(
-      double leftRadPerSec, double rightRadPerSec, double leftFFVolts, double rightFFVolts) {
+      double leftRadPerSec, double rightRadPerSec) {
     closedLoop = true;
     this.leftFFVolts = leftFFVolts;
     this.rightFFVolts = rightFFVolts;

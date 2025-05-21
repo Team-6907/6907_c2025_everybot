@@ -54,7 +54,7 @@ public class ArmIOTalonFX implements ArmIO {
     armConfig.MotionMagic.MotionMagicCruiseVelocity = 1000 / ArmConstants.kArmGearRatio;
     armConfig.MotionMagic.MotionMagicAcceleration =
         5000 * armConfig.MotionMagic.MotionMagicCruiseVelocity;
-    armConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    armConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     armConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     armConfig.CurrentLimits.SupplyCurrentLimit = currentLimit;
@@ -79,14 +79,16 @@ public class ArmIOTalonFX implements ArmIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
     arm.optimizeBusUtilization();
+
+    resetPosion();
   }
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.positionDegree = Units.rotationsToDegrees(positionRot.getValueAsDouble());
-    inputs.velocityDegreePerSec = Units.rotationsToDegrees(velocityRotPerSec.getValueAsDouble());
+    inputs.positionRad = Units.rotationsToRadians(positionRot.getValueAsDouble());
+    inputs.velocityRadPerSec = Units.rotationsToRadians(velocityRotPerSec.getValueAsDouble());
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
     inputs.currentAmps = currentAmps.getValueAsDouble();
   }
@@ -97,7 +99,7 @@ public class ArmIOTalonFX implements ArmIO {
   }
 
   public double getPosition() {
-    return arm.getPosition().getValueAsDouble();
+    return Units.rotationsToRadians(arm.getPosition().getValueAsDouble());
   }
 
   public void ArmtoPose(Armposition p) {

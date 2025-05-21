@@ -34,12 +34,11 @@ public class DriveConstants {
   // Motor configuration
   public static final int currentLimit = 60;
   public static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
-  public static final double motorReduction = 10.71;
+  public static final double motorReduction = 8.46;
   public static final boolean leftInverted = false;
   public static final boolean rightInverted = true;
   public static final DCMotor gearbox = DCMotor.getCIM(2);
 
-  public static final double kCancoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI;
 
   // Velocity PID configuration
   public static final double realKp = 0.0;

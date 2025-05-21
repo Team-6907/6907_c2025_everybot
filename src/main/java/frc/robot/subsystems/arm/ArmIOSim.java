@@ -29,8 +29,8 @@ public class ArmIOSim implements ArmIO {
     sim.setInputVoltage(appliedVolts);
     sim.update(0.02);
 
-    inputs.positionDegree = sim.getAngularPosition().in(Degrees);
-    inputs.velocityDegreePerSec = sim.getAngularVelocityRadPerSec() * 180;
+    inputs.positionRad = sim.getAngularPosition().in(Radians);
+    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = sim.getCurrentDrawAmps();
   }
@@ -56,7 +56,7 @@ public class ArmIOSim implements ArmIO {
     Logger.recordOutput("Arm_goal_setpoint", goal_setpoint);
 
     pidController.setSetpoint(goal_setpoint);
-    double speed = pidController.calculate(sim.getAngularPosition().in(Degrees));
+    double speed = pidController.calculate(sim.getAngularPosition().in(Radians));
     sim.setInputVoltage(speed);
   }
 

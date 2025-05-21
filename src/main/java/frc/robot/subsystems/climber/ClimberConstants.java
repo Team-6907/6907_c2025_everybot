@@ -15,9 +15,16 @@ package frc.robot.subsystems.climber;
 
 public class ClimberConstants {
   public static final int climberCanId = 11;
-  public static final double motorReduction = 1.0;
+  public static final double motorReduction = 125.0;
   public static final int currentLimit = 40;
 
   public static final double CLIMBER_SPEED_DOWN = -0.5;
   public static final double CLIMBER_SPEED_UP = 0.9;
+
+  public static final double real_kP = 0;
+  public static final double real_kI = 0;
+  public static final double real_kD = 0;
+  public static final double real_kA = 0;
+  public static final double real_kS = 0;
+  public static final double real_kG = 0;
 }

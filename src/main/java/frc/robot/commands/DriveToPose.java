@@ -235,13 +235,13 @@ public class DriveToPose extends Command {
 
     if (currentDistance < driveController.getPositionTolerance()) {
 
-      thetaController.setP(thetakP.get() * 2.0);
+      thetaController.setP(thetakP.get() * 40.0);
 
       double angleToTarget =
           Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
 
       double finalRotationFF =
-          MathUtil.clamp(angleToTarget / Units.degreesToRadians(45.0), 0.0, 1.0);
+          MathUtil.clamp(angleToTarget / Units.degreesToRadians(45.0), 0.0, 75.0);
 
       double thetaVelocity1 =
           thetaController.getSetpoint().velocity * finalRotationFF
@@ -268,10 +268,7 @@ public class DriveToPose extends Command {
             thetaController.calculate(
                 currentPose.getRotation().getRadians(), headingToTarget.getRadians());
 
-        if (Math.abs(currentPose.getRotation().minus(headingToTarget).getRadians())
-            < thetaController.getPositionTolerance()) {
-          currentState = DriveState.DRIVE_TO_TARGET;
-        }
+       
 
         drive.runClosedLoop(new ChassisSpeeds(0.0, 0.0, thetaVelocity));
         break;

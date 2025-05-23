@@ -10,9 +10,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Arm.ArmState;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
+import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.ClimbIO;
+import frc.robot.subsystems.climb.ClimbIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
@@ -22,7 +26,6 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.roller.Roller;
 import frc.robot.subsystems.roller.RollerIO;
 import frc.robot.subsystems.roller.RollerIOSim;
-import frc.robot.subsystems.roller.RollerIOTalonFX;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -36,6 +39,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Roller roller;
   private final Arm arm;
+  private final Climb climb;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -49,8 +53,9 @@ public class RobotContainer {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         drive = new Drive(new DriveIOTalonSRX(), new GyroIOPigeon2());
-        roller = new Roller(new RollerIOTalonFX());
+        roller = new Roller(new RollerIO() {});
         arm = new Arm(new ArmIOTalonFX());
+        climb = new Climb(new ClimbIO() {});
         break;
 
       case SIM:
@@ -58,6 +63,7 @@ public class RobotContainer {
         drive = new Drive(new DriveIOSim(), new GyroIO() {});
         roller = new Roller(new RollerIOSim());
         arm = new Arm(new ArmIOSim());
+        climb = new Climb(new ClimbIOSim());
         break;
 
       default:
@@ -65,6 +71,7 @@ public class RobotContainer {
         drive = new Drive(new DriveIO() {}, new GyroIO() {});
         roller = new Roller(new RollerIO() {});
         arm = new Arm(new ArmIO() {});
+        climb = new Climb(new ClimbIO() {});
         break;
     }
 
@@ -97,15 +104,17 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Default drive command, normal arcade drive
     drive.setDefaultCommand(
         DriveCommands.arcadeDrive(
-            drive, () -> -controller.getLeftY(), () -> -controller.getRightX()));
+            drive, () -> controller.getLeftY(), () -> controller.getRightX()));
 
-    // Default roller command, control with triggers
     roller.setDefaultCommand(
         roller.runTeleop(
             () -> controller.getRightTriggerAxis(), () -> controller.getLeftTriggerAxis()));
+
+    controller.a().onTrue(arm.setSetpointCommand(ArmState.STOW_NONE));
+    controller.y().onTrue(arm.setSetpointCommand(ArmState.INTAKE));
+    controller.rightBumper().onTrue(arm.resetPosition());
   }
 
   /**

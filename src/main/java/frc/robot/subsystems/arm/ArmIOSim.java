@@ -13,7 +13,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 public class ArmIOSim implements ArmIO {
   private DCMotorSim sim =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, motorReduction),
+          LinearSystemId.createDCMotorSystem(
+              DCMotor.getCIM(1), 0.004, ArmConfigConstants.kArmGearRatio),
           DCMotor.getCIM(1));
 
   private double appliedVolts = 0.0;
@@ -31,5 +32,10 @@ public class ArmIOSim implements ArmIO {
   @Override
   public void runVolts(Voltage voltage) {
     appliedVolts = MathUtil.clamp(voltage.in(Volts), -12.0, 12.0);
+  }
+
+  @Override
+  public void runSetpoint(Angle position) {
+    sim.setAngle(position.in(Radians));
   }
 }

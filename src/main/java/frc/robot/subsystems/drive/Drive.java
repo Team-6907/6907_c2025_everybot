@@ -105,6 +105,13 @@ public class Drive extends SubsystemBase {
       lastRightPositionMeters = getRightPositionMeters();
     }
 
+    if (Constants.tuningMode
+        && (realKp.hasChanged(hashCode())
+            || realKi.hasChanged(hashCode())
+            || realKd.hasChanged(hashCode()))) {
+      io.setPID(realKp.get(), realKi.get(), realKd.get());
+    }
+
     // Update odometry
     poseEstimator.update(rawGyroRotation, getLeftPositionMeters(), getRightPositionMeters());
   }
@@ -117,14 +124,9 @@ public class Drive extends SubsystemBase {
 
   /** Runs the drive at the desired left and right velocities. */
   public void runClosedLoop(double leftMetersPerSec, double rightMetersPerSec) {
-    double leftRadPerSec = leftMetersPerSec / wheelRadiusMeters;
-    double rightRadPerSec = rightMetersPerSec / wheelRadiusMeters;
-    Logger.recordOutput("Drive/LeftSetpointRadPerSec", leftRadPerSec);
-    Logger.recordOutput("Drive/RightSetpointRadPerSec", rightRadPerSec);
-
-    double leftFFVolts = kS * Math.signum(leftRadPerSec) + kV * leftRadPerSec;
-    double rightFFVolts = kS * Math.signum(rightRadPerSec) + kV * rightRadPerSec;
-    io.setVelocity(leftRadPerSec, rightRadPerSec, leftFFVolts, rightFFVolts);
+    io.setVelocity(MetersPerSecond.of(leftMetersPerSec), MetersPerSecond.of(rightMetersPerSec));
+    Logger.recordOutput("Drive/Output/left", leftMetersPerSec);
+    Logger.recordOutput("Drive/Output/right", rightMetersPerSec);
   }
 
   /** Runs the drive in open loop. */
@@ -177,29 +179,31 @@ public class Drive extends SubsystemBase {
   /** Returns the position of the left wheels in meters. */
   @AutoLogOutput
   public double getLeftPositionMeters() {
-    return inputs.leftPositionRad * wheelRadiusMeters;
+    return inputs.leftPositionMeter.in(Meters);
   }
 
   /** Returns the position of the right wheels in meters. */
   @AutoLogOutput
   public double getRightPositionMeters() {
-    return inputs.rightPositionRad * wheelRadiusMeters;
+    return inputs.rightPositionMeter.in(Meters);
   }
 
   /** Returns the velocity of the left wheels in meters/second. */
   @AutoLogOutput
   public double getLeftVelocityMetersPerSec() {
-    return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
+    return inputs.leftVelocityMetPerSec.in(MetersPerSecond);
   }
 
   /** Returns the velocity of the right wheels in meters/second. */
   @AutoLogOutput
   public double getRightVelocityMetersPerSec() {
-    return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
+    return inputs.rightVelocityMetPerSec.in(MetersPerSecond);
   }
 
   /** Returns the average velocity in radians/second. */
   public double getCharacterizationVelocity() {
-    return (inputs.leftVelocityRadPerSec + inputs.rightVelocityRadPerSec) / 2.0;
+    return (inputs.leftVelocityRadPerSec.in(RadiansPerSecond)
+            + inputs.rightVelocityRadPerSec.in(RadiansPerSecond))
+        / 2.0;
   }
 }

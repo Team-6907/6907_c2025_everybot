@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutCurrent;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
@@ -13,8 +14,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ArmIO {
   @AutoLog
   public static class ArmIOInputs {
-    public MutAngle position = Degrees.mutable(0);
-    public MutAngle setpointPosition = Degrees.mutable(0);
+    public MutAngle position = Rotations.mutable(0);
+    public MutAngularVelocity velocity = RotationsPerSecond.mutable(0);
     public MutVoltage appliedVolts = Volts.mutable(0);
     public MutCurrent currentAmps = Amps.mutable(0);
   }
@@ -26,11 +27,7 @@ public interface ArmIO {
 
   public default void runVolts(Voltage voltage) {}
 
-  public default void resetPosition(Angle position) {}
-
-  public default boolean updateConfig(boolean forceUpdate) {
-    return false;
-  }
+  public default void resetPosition() {}
 
   public default void stop() {}
 }

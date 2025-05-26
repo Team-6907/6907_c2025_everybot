@@ -2,7 +2,7 @@
 package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.subsystems.roller.RollerConstants.*;
+import static frc.robot.subsystems.climb.ClimbConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;

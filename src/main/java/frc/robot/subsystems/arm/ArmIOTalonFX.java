@@ -7,26 +7,22 @@ import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.*;
 import frc.robot.Constants;
-import frc.robot.Constants.CommunicationConstants;
 
 /** This arm implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60. */
 public class ArmIOTalonFX implements ArmIO {
   private final TalonFX arm = new TalonFX(armCanId);
 
-  private PositionVoltage mPositionVoltage = new PositionVoltage(0.0);
+  private MotionMagicVoltage mMotionMagicVoltage = new MotionMagicVoltage(0.0);
 
   private TalonFXConfiguration armConfig = new TalonFXConfiguration();
-
-  private final SoftwareLimitSwitchConfigs mSoftLimitConf = new SoftwareLimitSwitchConfigs();
 
   private final StatusSignal<Angle> position = arm.getPosition();
   private final StatusSignal<AngularVelocity> velocity = arm.getVelocity();
@@ -40,23 +36,16 @@ public class ArmIOTalonFX implements ArmIO {
         kArmAcceleration.get() * armConfig.MotionMagic.MotionMagicCruiseVelocity;
     armConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     armConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    armConfig.CurrentLimits.SupplyCurrentLimit = ArmConfigConstants.kArmCurrentLimit;
 
     armConfig.Slot0.kP = kArmKp.get();
     armConfig.Slot0.kI = kArmKi.get();
     armConfig.Slot0.kD = kArmKd.get();
     armConfig.Slot0.kG = kArmKg.get();
     armConfig.Slot0.kS = kArmKs.get();
-    armConfig.Feedback.FeedbackRotorOffset = 0.0;
-    armConfig.Feedback.SensorToMechanismRatio = 24 / 36 * 23;
+    armConfig.Feedback.SensorToMechanismRatio = ArmConfigConstants.kArmGearRatio;
     armConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    armConfig.Voltage.PeakForwardVoltage = 12.0;
-    armConfig.Voltage.PeakReverseVoltage = -12.0;
-    armConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.02;
-    armConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
 
-    tryUntilOk(5, () -> arm.getConfigurator().apply(armConfig, 0.25));
+    arm.getConfigurator().apply(armConfig, 0.25);
 
     BaseStatusSignal.setUpdateFrequencyForAll(50.0, position, velocity, appliedVolts, currentAmps);
     arm.optimizeBusUtilization();
@@ -75,7 +64,8 @@ public class ArmIOTalonFX implements ArmIO {
       armConfig.Slot0.kI = kArmKi.get();
       armConfig.Slot0.kD = kArmKd.get();
       armConfig.Slot0.kG = kArmKg.get();
-      armConfig.MotionMagic.MotionMagicCruiseVelocity = kArmCruiseVelocity.get();
+      armConfig.MotionMagic.MotionMagicCruiseVelocity =
+          kArmCruiseVelocity.get() / ArmConfigConstants.kArmGearRatio;
       armConfig.MotionMagic.MotionMagicAcceleration =
           kArmAcceleration.get() * armConfig.MotionMagic.MotionMagicCruiseVelocity;
       tryUntilOk(5, () -> arm.getConfigurator().apply(armConfig, 0.25));
@@ -90,7 +80,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void runSetpoint(Angle position) {
-    arm.setControl(mPositionVoltage.withPosition(position));
+    arm.setControl(mMotionMagicVoltage.withPosition(position));
   }
 
   @Override
@@ -100,7 +90,8 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void resetPosition() {
-    arm.setPosition(Degrees.of(0), CommunicationConstants.kLongCANTimeoutSec);
+    arm.setPosition(Rotations.of(0));
+    arm.setControl(mMotionMagicVoltage.withPosition(0));
   }
 
   @Override

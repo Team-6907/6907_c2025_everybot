@@ -24,7 +24,7 @@ public class ArmIOSim implements ArmIO {
     sim.setInputVoltage(appliedVolts);
     sim.update(0.02);
 
-    inputs.position.mut_replace(sim.getAngularPosition().in(Degrees), Degrees);
+    inputs.position.mut_replace(sim.getAngularPosition().in(Rotations), Rotations);
     inputs.appliedVolts.mut_replace(appliedVolts, Volts);
     inputs.currentAmps.mut_replace(sim.getCurrentDrawAmps(), Amps);
   }

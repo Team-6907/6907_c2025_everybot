@@ -5,10 +5,9 @@ import frc.robot.util.LoggedTunableNumber;
 
 public class ArmConstants {
   public static final int armCanId = 5;
-  public static final int currentLimit = 40;
 
   public static final LoggedTunableNumber kArmKp =
-      new LoggedTunableNumber("ArmConstants/kArmKp", 5);
+      new LoggedTunableNumber("ArmConstants/kArmKp", 1);
   public static final LoggedTunableNumber kArmKi =
       new LoggedTunableNumber("ArmConstants/kArmKi", 0);
   public static final LoggedTunableNumber kArmKd =
@@ -18,16 +17,11 @@ public class ArmConstants {
   public static final LoggedTunableNumber kArmKs =
       new LoggedTunableNumber("ArmConstants/kArmKs", 0);
   public static final LoggedTunableNumber kArmCruiseVelocity =
-      new LoggedTunableNumber("ArmConstants/kArmCruiseVelocity", 45);
+      new LoggedTunableNumber("ArmConstants/kArmCruiseVelocity", 2);
   public static final LoggedTunableNumber kArmAcceleration =
-      new LoggedTunableNumber("ArmConstants/kArmAcceleration", 2.5);
+      new LoggedTunableNumber("ArmConstants/kArmAcceleration", 1);
 
   public static final class ArmConfigConstants {
-    public static final int kArmGearRatio = 1 / 23 * 36 / 24; // TODO: Change this.
-
-    public static final double kArmCurrentLimit = 40.0;
-
-    public static final double kArmForwardLimit = 12;
-    public static final double kArmReverseLimit = 12;
+    public static final int kArmGearRatio = 23 * 24 / 36; // TODO: Change this.
   }
 }

@@ -27,13 +27,14 @@ public class Arm extends SubsystemBase {
       new LoggedTunableNumber("Arm/stow_inPosition", 0);
 
   private Angle setPoint = Rotations.of(0);
+  private Angle currentGoal = Rotations.of(0);
 
   public enum ArmState {
-    INTAKE(Degrees.of(intakePosition.get())),
-    OUTTAKE_START(Degrees.of(outtake_startPosition.get())),
-    OUTTAKE_STOP(Degrees.of(outtake_stopPosition.get())),
-    STOW_NONE(Degrees.of(stow_nonePosition.get())),
-    STOW_IN(Degrees.of(stow_inPosition.get()));
+    INTAKE(Rotations.of(intakePosition.get())),
+    OUTTAKE_START(Rotations.of(outtake_startPosition.get())),
+    OUTTAKE_STOP(Rotations.of(outtake_stopPosition.get())),
+    STOW_NONE(Rotations.of(stow_nonePosition.get())),
+    STOW_IN(Rotations.of(stow_inPosition.get()));
 
     private Angle setpoint;
 
@@ -46,18 +47,13 @@ public class Arm extends SubsystemBase {
     }
 
     public void updateSetpoint(double setpoint) {
-      this.setpoint = Degrees.of(setpoint);
+      this.setpoint = Rotations.of(setpoint);
     }
   }
 
   public Arm(ArmIO io) {
     this.io = io;
     io.resetPosition();
-  }
-
-  public void goToPosition(ArmState armState) {
-    this.setPoint = armState.getSetpoint();
-    Logger.recordOutput("Arm/Setpoint", setPoint.in(Degrees));
   }
 
   @Override
@@ -77,7 +73,12 @@ public class Arm extends SubsystemBase {
       ArmState.STOW_IN.updateSetpoint(stow_inPosition.get());
     }
 
-    io.runSetpoint(setPoint);
+    if (currentGoal != setPoint) {
+      currentGoal = setPoint;
+      io.runSetpoint(currentGoal);
+      Logger.recordOutput("Arm/CurrentGoal", currentGoal.in(Rotations));
+    }
+
     Logger.processInputs("Arm", inputs);
   }
 
@@ -91,6 +92,16 @@ public class Arm extends SubsystemBase {
   }
 
   public Command resetPosition() {
-    return Commands.parallel(Commands.runOnce(() -> io.resetPosition()),(Commands.runOnce(() -> this.setPoint = Rotations.of(0))));
+    return Commands.parallel(
+        Commands.runOnce(
+            () -> {
+              io.stop();
+              io.resetPosition();
+            }),
+        Commands.runOnce(
+            () -> {
+              setPoint = Rotations.of(0);
+              currentGoal = Rotations.of(0);
+            }));
   }
 }

@@ -18,7 +18,7 @@ import edu.wpi.first.units.measure.*;
  * This roller implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60.
  */
 public class RollerIOTalonFX implements RollerIO {
-  private final TalonFX roller = new TalonFX(climbCanId);
+  private final TalonFX roller = new TalonFX(rollerCanId);
   private final StatusSignal<Angle> positionRot = roller.getPosition();
   private final StatusSignal<AngularVelocity> velocityRotPerSec = roller.getVelocity();
   private final StatusSignal<Voltage> appliedVolts = roller.getMotorVoltage();

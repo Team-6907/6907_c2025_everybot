@@ -15,8 +15,6 @@ package frc.robot.subsystems.climber;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import edu.wpi.first.wpilibj2.command.Command;
-
 public interface ClimberIO {
   @AutoLog
   public static class ClimberIOInputs {
@@ -32,5 +30,5 @@ public interface ClimberIO {
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
 
-  public default void climbtest(){}
+  public default void climbtest() {}
 }

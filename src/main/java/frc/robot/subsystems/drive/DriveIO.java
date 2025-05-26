@@ -36,6 +36,5 @@ public interface DriveIO {
   public default void setVoltage(double leftVolts, double rightVolts) {}
 
   /** Run closed loop at the specified velocity. */
-  public default void setVelocity(
-      double leftRadPerSec, double rightRadPerSec) {}
+  public default void setVelocity(double leftRadPerSec, double rightRadPerSec) {}
 }

@@ -23,7 +23,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix6.hardware.CANcoder;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -37,64 +36,66 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
   private final TalonSRX rightLeader = new TalonSRX(rightLeaderCanId);
   private final VictorSPX rightFollower = new VictorSPX(rightFollowerCanId);
 
-  private final CANcoder leftCANcoder = new CANcoder(1);
-  private final CANcoder rightCANcoder = new CANcoder(2);
+  private final CANcoder leftCANcoder = new CANcoder(29);
+  private final CANcoder rightCANcoder = new CANcoder(30);
 
   private final ProfiledPIDController leftPIDController =
-      new ProfiledPIDController(0.0, 0.0, 0.0, 
-        new TrapezoidProfile.Constraints(maxSpeedMetersPerSec * motorReduction, 0.0), 0.02);
+      new ProfiledPIDController(
+          1.0,
+          0.0,
+          0.0,
+          new TrapezoidProfile.Constraints(maxSpeedMetersPerSec * motorReduction, 2.0),
+          0.02);
   private final ProfiledPIDController rightPIDController =
-      new ProfiledPIDController(0.0, 0.0, 0.0, 
-        new TrapezoidProfile.Constraints(maxSpeedMetersPerSec * motorReduction, 0.0), 0.02);
+      new ProfiledPIDController(
+          1.0,
+          0.0,
+          0.0,
+          new TrapezoidProfile.Constraints(maxSpeedMetersPerSec * motorReduction, 2.0),
+          0.02);
 
   public DriveIOTalonSRXandVictorSPX() {
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
 
-    //config TalonSRX
+    // config TalonSRX
     var configTalon = new TalonSRXConfiguration();
     configTalon.peakCurrentLimit = currentLimit;
     configTalon.peakCurrentDuration = 250;
     configTalon.voltageCompSaturation = 12.0;
 
-
     tryUntilOkV5(5, () -> rightLeader.configAllSettings(configTalon));
     tryUntilOkV5(5, () -> leftLeader.configAllSettings(configTalon));
 
-    leftLeader.setInverted(leftInverted);
-    rightLeader.setInverted(rightInverted);
+    leftLeader.setInverted(leftLeaderInverted);
+    rightLeader.setInverted(rightLeaderInverted);
+    leftFollower.setInverted(leftFollowerInverted);
+    rightFollower.setInverted(rightFollowerInverted);
     leftLeader.setNeutralMode(NeutralMode.Brake);
     rightLeader.setNeutralMode(NeutralMode.Brake);
 
-    //config VictorSPX
+    // config VictorSPX
     leftFollower.setNeutralMode(NeutralMode.Brake);
     rightFollower.setNeutralMode(NeutralMode.Brake);
-
   }
 
   @Override
   public void updateInputs(DriveIOInputs inputs) {
     inputs.leftPositionRad =
-        Units.rotationsToRadians(leftCANcoder.getPosition().getValueAsDouble() * tickPerRevolution);
+        Units.rotationsToRadians(leftCANcoder.getPosition().getValueAsDouble() / motorReduction);
     inputs.leftVelocityRadPerSec =
         Units.rotationsToRadians(
-            leftLeader.getSelectedSensorVelocity()
-                / tickPerRevolution
-                * 10.0); // Raw units are ticks per 100ms :(
+            leftLeader.getSelectedSensorVelocity() * 10.0 / motorReduction); // Raw units are ticks per 100ms :(
     inputs.leftAppliedVolts = leftLeader.getMotorOutputVoltage();
-    inputs.leftCurrentAmps =
-        new double[] {leftLeader.getStatorCurrent()};
+    inputs.leftCurrentAmps = new double[] {leftLeader.getStatorCurrent()};
 
     inputs.rightPositionRad =
-        Units.rotationsToRadians(rightCANcoder.getPosition().getValueAsDouble() * tickPerRevolution);
+        Units.rotationsToRadians(rightCANcoder.getPosition().getValueAsDouble() / motorReduction);
     inputs.rightVelocityRadPerSec =
         Units.rotationsToRadians(
-            rightLeader.getSelectedSensorVelocity()
-                / tickPerRevolution
-                * 10.0); // Raw units are ticks per 100ms :(
+            rightLeader.getSelectedSensorVelocity() * 10.0 / motorReduction); // Raw units are ticks per 100ms :(
     inputs.rightAppliedVolts = rightLeader.getMotorOutputVoltage();
-    inputs.rightCurrentAmps =
-        new double[] {rightLeader.getStatorCurrent()};
+    inputs.rightCurrentAmps = new double[] {rightLeader.getStatorCurrent()};
   }
 
   @Override
@@ -104,17 +105,15 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
   }
 
   @Override
-  public void setVelocity(
-      double leftRadPerSec, double rightRadPerSec) {
+  public void setVelocity(double leftRadPerSec, double rightRadPerSec) {
     // OK to just divide FF by 12 because voltage compensation is enabled
-    
+
     double m_leftVolt = leftPIDController.calculate(leftRadPerSec);
     double m_rightVolt = rightPIDController.calculate(rightRadPerSec);
 
     leftLeader.set(ControlMode.PercentOutput, m_leftVolt / 12);
     rightLeader.set(ControlMode.PercentOutput, m_rightVolt / 12);
 
-    
     /*leftLeader.set(
         TalonSRXControlMode.Velocity,
         Units.radiansToRotations(leftPIDController.calculate(leftRadPerSec)) / 10.0, // Raw units are ticks per 100ms :(
@@ -127,6 +126,4 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
         rightFFVolts / 12.0);
         */
   }
-
-  
 }

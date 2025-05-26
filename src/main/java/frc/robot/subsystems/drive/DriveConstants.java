@@ -25,26 +25,27 @@ public class DriveConstants {
   public static final double SLOW_MODE_TURN = 0.6;
 
   // Device CAN IDs
-  public static final int pigeonCanId = 9;
-  public static final int leftLeaderCanId = 1;
-  public static final int leftFollowerCanId = 2;
-  public static final int rightLeaderCanId = 3;
-  public static final int rightFollowerCanId = 4;
+  public static final int pigeonCanId = 50;
+  public static final int leftLeaderCanId = 0;
+  public static final int leftFollowerCanId = 1;
+  public static final int rightLeaderCanId = 2;
+  public static final int rightFollowerCanId = 3;
 
   // Motor configuration
   public static final int currentLimit = 60;
   public static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
   public static final double motorReduction = 8.46;
-  public static final boolean leftInverted = false;
-  public static final boolean rightInverted = true;
+  public static final boolean leftLeaderInverted = true;
+  public static final boolean rightLeaderInverted = false;
+  public static final boolean leftFollowerInverted = true;
+  public static final boolean rightFollowerInverted = false;
   public static final DCMotor gearbox = DCMotor.getCIM(2);
 
-
   // Velocity PID configuration
-  public static final double realKp = 0.0;
+  public static final double realKp = 1.0;
   public static final double realKd = 0.0;
   public static final double realKs = 0.0;
-  public static final double realKv = 0.1;
+  public static final double realKv = 0.5;
 
   public static final double simKp = 0.05;
   public static final double simKd = 0.0;

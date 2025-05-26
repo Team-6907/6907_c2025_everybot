@@ -15,6 +15,9 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +28,7 @@ import frc.robot.commands.ArmCommands;
 import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
@@ -58,7 +62,6 @@ public class RobotContainer {
   private final Roller roller;
   private final Arm arm;
   private final Climber climber;
-
 
   private final CommandXboxController driverController =
       new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -162,8 +165,16 @@ public class RobotContainer {
     operatorController.pov(0).whileTrue(ClimbCommands.ClimbUp(climber));
     operatorController.pov(180).whileTrue(ClimbCommands.ClimbDown(climber));
 
-    //test arm position constant
+    // test arm position constant
     operatorController.b().whileTrue(arm.runPercent(0.3));
+
+    // Drive to specific pose when pressing A button
+    driverController
+        .a()
+        .whileTrue(
+            new DriveToPose(
+                drive,
+                () -> new Pose2d(new Translation2d(-4.41, -0.5), Rotation2d.fromDegrees(90))));
   }
 
   /**

@@ -43,8 +43,6 @@ public class Climber extends SubsystemBase {
   }
 
   public Command climbtestCommand() {
-    return runEnd(
-      () -> io.climbtest(),
-      () -> io.setVoltage(0.0));
+    return runEnd(() -> io.climbtest(), () -> io.setVoltage(0.0));
   }
 }

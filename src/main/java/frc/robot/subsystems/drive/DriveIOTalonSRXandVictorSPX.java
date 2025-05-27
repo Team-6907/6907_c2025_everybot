@@ -82,18 +82,18 @@ public class DriveIOTalonSRXandVictorSPX implements DriveIO {
   @Override
   public void updateInputs(DriveIOInputs inputs) {
     inputs.leftPositionRad =
-        Units.rotationsToRadians(leftCANcoder.getPosition().getValueAsDouble() / motorReduction);
+        Units.rotationsToRadians(leftCANcoder.getPosition().getValueAsDouble());
     inputs.leftVelocityRadPerSec =
         Units.rotationsToRadians(
-            leftLeader.getSelectedSensorVelocity() * 10.0 / motorReduction); // Raw units are ticks per 100ms :(
+            leftLeader.getSelectedSensorVelocity() * 10.0); // Raw units are ticks per 100ms :(
     inputs.leftAppliedVolts = leftLeader.getMotorOutputVoltage();
     inputs.leftCurrentAmps = new double[] {leftLeader.getStatorCurrent()};
 
     inputs.rightPositionRad =
-        Units.rotationsToRadians(rightCANcoder.getPosition().getValueAsDouble() / motorReduction);
+        Units.rotationsToRadians(rightCANcoder.getPosition().getValueAsDouble());
     inputs.rightVelocityRadPerSec =
         Units.rotationsToRadians(
-            rightLeader.getSelectedSensorVelocity() * 10.0 / motorReduction); // Raw units are ticks per 100ms :(
+            rightLeader.getSelectedSensorVelocity() * 10.0); // Raw units are ticks per 100ms :(
     inputs.rightAppliedVolts = rightLeader.getMotorOutputVoltage();
     inputs.rightCurrentAmps = new double[] {rightLeader.getStatorCurrent()};
   }

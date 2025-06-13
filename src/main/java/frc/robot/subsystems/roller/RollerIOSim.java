@@ -23,9 +23,8 @@ public class RollerIOSim implements RollerIO {
     sim.setInputVoltage(appliedVolts);
     sim.update(0.02);
 
-    inputs.positionRad.mut_replace(sim.getAngularPosition().in(Degrees), Degrees);
-    inputs.velocityRadPerSec.mut_replace(
-        sim.getAngularVelocity().in(DegreesPerSecond), DegreesPerSecond);
+    inputs.position.mut_replace(sim.getAngularPosition().in(Degrees), Degrees);
+    inputs.velocity.mut_replace(sim.getAngularVelocity().in(DegreesPerSecond), DegreesPerSecond);
     inputs.appliedVolts.mut_replace(appliedVolts, Volts);
     inputs.currentAmps.mut_replace(sim.getCurrentDrawAmps(), Amps);
   }

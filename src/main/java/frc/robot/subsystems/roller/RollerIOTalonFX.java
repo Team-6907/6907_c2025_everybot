@@ -28,6 +28,7 @@ public class RollerIOTalonFX implements RollerIO {
 
   public RollerIOTalonFX() {
     var config = new TalonFXConfiguration();
+    config.Slot0.kV = 1;
     config.CurrentLimits.SupplyCurrentLimit = currentLimit;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -43,15 +44,14 @@ public class RollerIOTalonFX implements RollerIO {
   public void updateInputs(RollerIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.positionRad.mut_replace(positionRot.getValue().in(Degrees), Degrees);
-    inputs.velocityRadPerSec.mut_replace(
-        velocityRotPerSec.getValue().in(DegreesPerSecond), DegreesPerSecond);
+    inputs.position.mut_replace(positionRot.getValue());
+    inputs.velocity.mut_replace(velocityRotPerSec.getValue());
     inputs.appliedVolts.mut_replace(appliedVolts.getValue());
     inputs.currentAmps.mut_replace(currentAmps.getValue());
   }
 
   @Override
-  public void runVelocity(AngularVelocity angularVelocity) {
+  public void runSetpoint(AngularVelocity angularVelocity) {
     roller.setControl(voltageRequest.withVelocity(angularVelocity));
   }
 

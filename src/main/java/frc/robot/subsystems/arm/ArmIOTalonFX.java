@@ -90,8 +90,8 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void resetPosition() {
-    arm.setPosition(Rotations.of(0));
-    arm.setControl(mMotionMagicVoltage.withPosition(0));
+    arm.setPosition(Rotations.of(-0.03));
+    arm.setControl(mMotionMagicVoltage.withPosition(-0.03));
   }
 
   @Override

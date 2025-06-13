@@ -4,6 +4,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -13,6 +14,7 @@ import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.Climb.ClimbState;
 import frc.robot.subsystems.climb.ClimbIO;
 import frc.robot.subsystems.climb.ClimbIOSim;
 import frc.robot.subsystems.drive.Drive;
@@ -22,6 +24,7 @@ import frc.robot.subsystems.drive.DriveIOTalonSRX;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.roller.Roller;
+import frc.robot.subsystems.roller.Roller.RollerState;
 import frc.robot.subsystems.roller.RollerIO;
 import frc.robot.subsystems.roller.RollerIOSim;
 import frc.robot.subsystems.roller.RollerIOTalonFX;
@@ -95,13 +98,31 @@ public class RobotContainer {
         DriveCommands.arcadeDrive(
             drive, () -> controller.getLeftY(), () -> controller.getRightX()));
 
-    roller.setDefaultCommand(
-        roller.runTeleop(
-            () -> controller.getRightTriggerAxis(), () -> controller.getLeftTriggerAxis()));
+    controller
+        .leftBumper()
+        .onTrue(
+            Commands.parallel(
+                arm.setSetpointCommand(ArmState.INTAKE),
+                roller.setSetpointCommand(RollerState.INTAKE)))
+        .onFalse(
+            Commands.parallel(
+                arm.setSetpointCommand(ArmState.STOW_IN),
+                roller.setSetpointCommand(RollerState.STOW)));
 
-    controller.a().onTrue(arm.setSetpointCommand(ArmState.STOW_NONE));
-    controller.y().onTrue(arm.setSetpointCommand(ArmState.INTAKE));
-    controller.rightBumper().onTrue(arm.resetPosition());
+    controller
+        .rightBumper()
+        .onTrue(
+            Commands.parallel(
+                arm.setSetpointCommand(ArmState.OUTTAKE_START),
+                roller.setSetpointCommand(RollerState.OUTTAKE)))
+        .onFalse(
+            Commands.parallel(
+                arm.setSetpointCommand(ArmState.STOW_NONE),
+                roller.setSetpointCommand(RollerState.STOW)));
+
+    controller.x().onTrue(climb.setSetpointCommand(ClimbState.STOW));
+    controller.b().onTrue(climb.setSetpointCommand(ClimbState.CLIMBING));
+    controller.leftBumper().onTrue(climb.setSetpointCommand(ClimbState.EXTENDED));
   }
 
   public Command getAutonomousCommand() {

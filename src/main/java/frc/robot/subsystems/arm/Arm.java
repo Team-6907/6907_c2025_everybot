@@ -11,9 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
-/**
- * Arm 子系统用于控制机器人的机械臂。
- */
+/** Arm 子系统用于控制机器人的机械臂。 */
 public class Arm extends SubsystemBase {
   private final ArmIO io; // ArmIO接口，用于与硬件交互
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged(); // 自动记录输入数据
@@ -33,9 +31,7 @@ public class Arm extends SubsystemBase {
   private Angle setPoint = Rotations.of(0.25); // 当前设定点
   private Angle currentGoal = Rotations.of(0.25); // 当前目标角度
 
-  /**
-   * ArmState 枚举定义了机械臂的不同状态及其对应的目标角度。
-   */
+  /** ArmState 枚举定义了机械臂的不同状态及其对应的目标角度。 */
   public enum ArmState {
     INTAKE(Rotations.of(intakePosition.get())), // 采集状态
     OUTTAKE_START(Rotations.of(outtake_startPosition.get())), // 开始释放状态
@@ -68,9 +64,7 @@ public class Arm extends SubsystemBase {
     io.resetPosition(); // 重置位置
   }
 
-  /**
-   * 周期性执行的方法，用于更新输入和处理逻辑。
-   */
+  /** 周期性执行的方法，用于更新输入和处理逻辑。 */
   @Override
   public void periodic() {
     io.updateInputs(inputs); // 更新输入数据

@@ -12,9 +12,7 @@ import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-/**
- * Climb 控制攀爬机构。
- */
+/** Climb 控制攀爬机构。 */
 public class Climb extends SubsystemBase {
 
   private Angle setPoint = Rotations.of(0); // 当前设定角度
@@ -31,9 +29,7 @@ public class Climb extends SubsystemBase {
   private static LoggedTunableNumber climbingPosition =
       new LoggedTunableNumber("Climb/climbingPosition", 0);
 
-  /**
-   * ClimbState 枚举表示攀爬臂的不同状态及其对应的目标角度。
-   */
+  /** ClimbState 枚举表示攀爬臂的不同状态及其对应的目标角度。 */
   public enum ClimbState {
     STOW(Rotations.of(stowPosition.get())), // 存储位置
     EXTENDED(Rotations.of(extendedPosition.get())), // 延伸位置
@@ -63,9 +59,7 @@ public class Climb extends SubsystemBase {
     this.io = io;
   }
 
-  /**
-   * 周期性执行的方法，用于更新输入和处理逻辑。
-   */
+  /** 周期性执行的方法，用于更新输入和处理逻辑。 */
   @Override
   public void periodic() {
     io.updateInputs(inputs); // 更新输入数据

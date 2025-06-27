@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -27,6 +29,13 @@ public final class Constants {
   public static final int DRIVER_CONTROLLER_PORT = 0;
   public static final int OPERATOR_CONTROLLER_PORT = 1;
 
+
+  public static final AprilTagFieldLayout kFieldTagLayout =
+      AprilTagFieldLayout.loadField(
+          AprilTagFields.k2025ReefscapeAndyMark); // TODO: check with actual field
+  public static final boolean SS_SIM_DYNAMICS = true;
+  public static double kLoopDt = 0.02;
+  
   public static final boolean tuningMode = true;
 
   public static enum Mode {
